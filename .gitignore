@@ -1,0 +1,17 @@
+node_modules/
+.amplify/
+amplify_outputs.json
+.env
+.env.*
+!.env.example
+
+dist/
+build/
+*.tsbuildinfo
+
+.DS_Store
+.vscode/
+.idea/
+
+coverage/
+*.log

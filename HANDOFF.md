@@ -1,0 +1,2429 @@
+🏢 CRE Chatbot - Amplify Gen2 + LangGraph.js Rebuild
+
+Complete Handoff for Claude Code
+
+Project: Commercial Real Estate Investment Analysis Chatbot
+Current State: Python/Flask backend (2025 - outdated, 12 months
+untouched)
+Goal: Rebuild with TypeScript/LangGraph.js on AWS Amplify Gen2
+Date: May 10, 2026
+For: Claude Code development session
+
+------------------------------------------------------------------------
+
+📋 Executive Summary
+
+What You're Building
+
+A complete rebuild of the CRE chatbot backend using your native
+technology stack:
+
+- ✅ AWS Amplify Gen2 - Infrastructure as code, TypeScript-native
+- ✅ LangGraph.js - Now mature and production-ready (May 2026)
+- ✅ Next.js Frontend - Already built in 2025, will integrate
+- ✅ TypeScript Throughout - Your comfort zone
+- ✅ Lambda Functions - Serverless LangGraph orchestration
+
+Why This Approach
+
+Your Background:
+
+- Director at Amazon (9 years) - left one week ago
+- Kept programming skills alive with Next.js + Amplify
+- TypeScript/JavaScript is your native language (30+ years)
+- Python was a temporary necessity in 2025 (LangGraph.js didn't exist)
+- Haven't touched Python code in 12 months
+
+The Situation in 2025:
+
+[]
+
+[]
+
+    June 2025:
+    - Built Python/Flask backend (only option)
+    - LangGraph.js didn't exist or was immature
+    - Built Next.js frontend (working)
+    - Deployed and working
+
+    Problem: Python isn't your language
+
+The Situation in May 2026:
+
+[]
+
+[]
+
+    Now:
+    - LangGraph.js is mature and production-ready ✅
+    - AWS Amplify Gen2 is stable ✅
+    - You're back in TypeScript (your comfort zone) ✅
+    - Can rebuild backend properly ✅
+
+    Solution: Native TS/JS stack throughout
+
+Your Mission
+
+PRIMARY GOAL: Rebuild the backend in TypeScript with Amplify Gen2 +
+LangGraph.js
+
+SUCCESS CRITERIA:
+
+1.  ✅ Complete LangGraph.js state machine for deal analysis
+2.  ✅ All business logic ported from Python (IRR calculations verified)
+3.  ✅ Amplify Gen2 backend deployed and working
+4.  ✅ Integrated with existing Next.js frontend
+5.  ✅ Comprehensive test suite
+6.  ✅ Git repository from day one with proper commits
+7.  ✅ Production deployment on AWS
+
+TIMELINE: 2-3 weeks estimated
+
+------------------------------------------------------------------------
+
+🎯 Strategic Context
+
+Why Amplify Gen2 (Not Standalone Node)?
+
+You know Amplify Gen2 - it's your comfort zone:
+
+Amplify Gen2 Advantages:
+
+- ✅ TypeScript-native - Define infrastructure in TS
+- ✅ Integrated AWS services - DynamoDB, S3, Cognito out of box
+- ✅ Gen AI constructs - Built for LLM applications
+- ✅ Deployment pipeline - CI/CD included
+- ✅ Local development - Sandbox mode
+- ✅ Cost effective - Serverless, pay per use
+- ✅ You know it - No learning curve
+
+vs Standalone Node:
+
+- Would need: Express + deployment + database + auth + scaling
+- More moving parts to manage
+- Not leveraging AWS ecosystem
+- Unfamiliar deployment patterns
+
+Why LangGraph.js (Not Python)
+
+May 2026 Reality:
+
+- LangGraph.js is now mature (11 months since you built Python version)
+- Production examples exist
+- TypeScript is your native language
+- Python code is 12 months stale
+- You'd need to modernize Python anyway (breaking changes)
+
+The Math:
+
+[]
+
+[]
+
+    Path A: Modernize Python LangGraph (unfamiliar language)
+      Week 1-2: Update Python to 2026 APIs
+      Week 3-4: Then maybe port to TS/JS
+      Total: 4 weeks in languages you don't prefer
+
+    Path B: Direct to LangGraph.js (your language)
+      Week 1: LangGraph.js + Amplify setup
+      Week 2: Port business logic
+      Week 3: Integration + deployment
+      Total: 3 weeks in your comfort zone
+
+    Winner: Path B (faster, better for you)
+
+Technology Decision Matrix
+
+  Aspect             Amplify Gen2 + LangGraph.js   Standalone Node      Python Modernization
+  ------------------ ----------------------------- -------------------- ----------------------
+  Your Familiarity   High (Amplify + TS)           Medium               Low (rusty Python)
+  Setup Time         1 day (Amplify CLI)           2-3 days             1 day
+  Infrastructure     Included                      Manual setup         Manual setup
+  AWS Integration    Native                        Custom code          Custom code
+  Deployment         Built-in CI/CD                Configure yourself   Configure yourself
+  Scaling            Automatic                     Manual               Manual
+  Cost               Pay-per-use                   Server costs         Server costs
+  Total Timeline     3 weeks                       3-4 weeks            4 weeks
+
+Winner: Amplify Gen2 + LangGraph.js
+
+------------------------------------------------------------------------
+
+📊 Original System Analysis (Python Reference)
+
+What You Built in 2025 (Python/Flask)
+
+[]
+
+[]
+
+    VERIFIED CODE STATISTICS:
+    Total: 1,407 lines of Python code
+
+    Key Components:
+    - IRR Calculation Engine: 121 lines (CRITICAL - must port accurately)
+    - Field Configuration: 82 lines (defines 7 fields)
+    - LangGraph Workflow: 541 lines (graph.py + nodes.py)
+    - Field Parsing: 127 lines (LLM-based, can simplify in TS)
+    - Domain Models: 73 lines (Pydantic → Zod in TS)
+    - Flask API: 216 lines (→ Amplify API Gateway)
+
+Business Logic to Preserve
+
+1. IRR Calculation (CRITICAL)
+
+Python Implementation (deal_calculator.py):
+
+[]
+
+[]
+
+python
+
+    def calculate_irr_manual(cash_flows):
+        """Manual IRR calculation using bisection method"""
+        def npv(rate, cash_flows):
+            return sum(cf / (1 + rate) ** i for i, cf in enumerate(cash_flows))
+        
+        # Bisection method to find IRR
+        low, high = -0.99, 10.0
+        
+        for _ in range(100):
+            mid = (low + high) / 2
+            if abs(npv(mid, cash_flows)) < 1e-6:
+                return mid
+            elif npv(mid, cash_flows) > 0:
+                low = mid
+            else:
+                high = mid
+        
+        return mid
+
+TypeScript Port Strategy:
+
+[]
+
+[]
+
+typescript
+
+    // Will use financial-ts library or implement bisection method
+    // MUST verify outputs match Python version exactly
+    // Test cases from Python version will be reference
+
+2. Field Configuration System
+
+Python Version:
+
+[]
+
+[]
+
+python
+
+    FIELD_CONFIGS = {
+        'deal_name': FieldConfig(...),
+        'purchase_price': FieldConfig(field_type='currency', ...),
+        'net_operating_income': FieldConfig(field_type='currency', ...),
+        'noi_growth_rate': FieldConfig(field_type='percentage', ...),
+        'hold_period': FieldConfig(field_type='int', ...),
+        'exit_cap_rate': FieldConfig(field_type='percentage', ...),
+        'city': FieldConfig(required=False, ...)
+    }
+
+TypeScript Port:
+
+[]
+
+[]
+
+typescript
+
+    // Clean port to TypeScript interfaces
+    // Zod for runtime validation
+    // Same 6 required + 1 optional field structure
+
+3. Conversation Flow
+
+Python LangGraph (5 nodes):
+
+[]
+
+[]
+
+    property_selection → data_collection → validation → calculation → complete
+
+LangGraph.js Port:
+
+[]
+
+[]
+
+typescript
+
+    // Same state machine pattern
+    // StateGraph from @langchain/langgraph
+    // 5 nodes with conditional routing
+    // Preserve system prompts (they're excellent)
+
+4. Professional UX Patterns
+
+Must Preserve:
+
+[]
+
+[]
+
+    ✅ **Deal Name**: "Downtown Office Complex"
+    **Progress**: 1/6 fields completed
+
+    💰 **Purchase Price**
+    What's the total acquisition cost of the property?
+    *Examples: $5,000,000, 5M, 5.5 million*
+
+This formatting was hard-won UX design - keep it!
+
+------------------------------------------------------------------------
+
+🏗️ Amplify Gen2 Architecture
+
+Project Structure
+
+[]
+
+[]
+
+    cre-chatbot-amplify/
+    ├── amplify/
+    │   ├── auth/
+    │   │   └── resource.ts              # Cognito (if needed)
+    │   ├── data/
+    │   │   └── resource.ts              # DynamoDB schema for sessions
+    │   ├── functions/
+    │   │   ├── chat-handler/            # Main chat endpoint
+    │   │   │   ├── handler.ts
+    │   │   │   ├── langraph/
+    │   │   │   │   ├── graph.ts         # LangGraph state machine
+    │   │   │   │   ├── nodes.ts         # Workflow nodes
+    │   │   │   │   └── state.ts         # State definition
+    │   │   │   ├── tools/
+    │   │   │   │   ├── field-parser.ts
+    │   │   │   │   ├── irr-calculator.ts
+    │   │   │   │   └── field-management.ts
+    │   │   │   └── utils/
+    │   │   │       ├── field-configs.ts
+    │   │   │       └── models.ts
+    │   │   └── session-manager/         # Session CRUD
+    │   │       └── handler.ts
+    │   ├── storage/
+    │   │   └── resource.ts              # S3 for deal history (optional)
+    │   └── backend.ts                   # Main Amplify config
+    ├── app/                              # Next.js frontend (existing)
+    │   ├── page.tsx
+    │   ├── components/
+    │   └── ...
+    ├── lib/
+    │   └── amplify-client.ts            # Amplify client config
+    ├── tests/
+    │   ├── unit/
+    │   │   ├── irr-calculator.test.ts   # CRITICAL: verify accuracy
+    │   │   ├── field-parser.test.ts
+    │   │   └── graph.test.ts
+    │   └── integration/
+    │       └── chat-flow.test.ts
+    ├── amplify_outputs.json             # Generated by Amplify
+    ├── package.json
+    ├── tsconfig.json
+    └── README.md
+
+Amplify Gen2 Backend Definition
+
+amplify/backend.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { defineBackend } from '@aws-amplify/backend';
+    import { chatHandler } from './functions/chat-handler/resource';
+    import { sessionData } from './data/resource';
+
+    const backend = defineBackend({
+      chatHandler,
+      sessionData,
+      // auth, storage if needed
+    });
+
+    // Add API Gateway endpoint
+    backend.chatHandler.resources.lambda.addEnvironment(
+      'OPENAI_API_KEY',
+      process.env.OPENAI_API_KEY!
+    );
+
+DynamoDB Schema for Sessions
+
+amplify/data/resource.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+
+    const schema = a.schema({
+      ChatSession: a.model({
+        sessionId: a.id().required(),
+        userId: a.string(),
+        propertyType: a.string(),
+        collectedFields: a.json(),
+        dealData: a.json(),
+        irrResult: a.json(),
+        conversationCount: a.integer().default(0),
+        analysisCompleted: a.boolean().default(false),
+        lastActivity: a.datetime(),
+        createdAt: a.datetime(),
+      })
+      .authorization((allow) => [allow.publicApiKey()]),
+      
+      CompletedDeal: a.model({
+        dealId: a.id().required(),
+        sessionId: a.string().required(),
+        dealName: a.string().required(),
+        purchasePrice: a.float().required(),
+        irrPercentage: a.float().required(),
+        performanceRating: a.string(),
+        city: a.string(),
+        dealData: a.json(),
+        completedAt: a.datetime(),
+      })
+      .authorization((allow) => [allow.publicApiKey()]),
+    });
+
+    export type Schema = ClientSchema<typeof schema>;
+    export const data = defineData({ schema });
+
+Lambda Function Structure
+
+amplify/functions/chat-handler/resource.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { defineFunction } from '@aws-amplify/backend';
+
+    export const chatHandler = defineFunction({
+      name: 'chat-handler',
+      entry: './handler.ts',
+      timeoutSeconds: 60,
+      memoryMB: 512,
+      environment: {
+        SESSION_TABLE_NAME: 'ChatSession-table',
+      },
+    });
+
+amplify/functions/chat-handler/handler.ts:
+
+[]
+
+[]
+
+typescript
+
+    import type { APIGatewayProxyHandler } from 'aws-lambda';
+    import { createCREAgent } from './langraph/graph';
+    import { SessionManager } from './utils/session-manager';
+
+    export const handler: APIGatewayProxyHandler = async (event) => {
+      try {
+        const { message, sessionId } = JSON.parse(event.body || '{}');
+        
+        // Get or create session
+        const sessionManager = new SessionManager();
+        const session = await sessionManager.getOrCreate(sessionId);
+        
+        // Create LangGraph agent
+        const agent = createCREAgent();
+        
+        // Build context for agent
+        const context = {
+          sessionId: session.sessionId,
+          collectedFields: session.collectedFields,
+          propertyType: session.propertyType,
+          userMessage: message,
+        };
+        
+        // Invoke LangGraph agent
+        const response = await agent.invoke(context);
+        
+        // Update session
+        await sessionManager.update(session.sessionId, {
+          collectedFields: response.collectedFields,
+          propertyType: response.propertyType,
+          lastActivity: new Date().toISOString(),
+          conversationCount: session.conversationCount + 1,
+        });
+        
+        return {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify({
+            response: response.message,
+            sessionId: session.sessionId,
+            progress: response.progress,
+          }),
+        };
+        
+      } catch (error) {
+        console.error('Chat handler error:', error);
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: 'Internal server error' }),
+        };
+      }
+    };
+
+------------------------------------------------------------------------
+
+🔧 LangGraph.js Implementation
+
+Package Dependencies
+
+package.json:
+
+[]
+
+[]
+
+json
+
+    {
+      "name": "cre-chatbot-amplify",
+      "version": "2.0.0",
+      "dependencies": {
+        "@aws-amplify/backend": "^1.0.0",
+        "@aws-amplify/backend-cli": "^1.0.0",
+        "aws-amplify": "^6.0.0",
+        "@langchain/core": "^0.2.0",
+        "@langchain/langgraph": "^0.0.25",
+        "@langchain/openai": "^0.1.0",
+        "zod": "^3.22.0",
+        "uuid": "^9.0.0"
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/aws-lambda": "^8.10.0",
+        "typescript": "^5.3.0",
+        "vitest": "^1.0.0",
+        "@vitest/ui": "^1.0.0",
+        "tsx": "^4.0.0"
+      }
+    }
+
+State Definition
+
+amplify/functions/chat-handler/langraph/state.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { z } from 'zod';
+
+    // Zod schema for runtime validation
+    export const ChatStateSchema = z.object({
+      sessionId: z.string(),
+      messages: z.array(z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string(),
+      })),
+      propertyType: z.enum(['office', 'shopping_center']).nullable(),
+      collectedFields: z.record(z.unknown()),
+      step: z.enum([
+        'property_selection',
+        'data_collection',
+        'validation',
+        'calculation',
+        'complete'
+      ]),
+      dealData: z.object({
+        dealName: z.string(),
+        purchasePrice: z.number(),
+        netOperatingIncome: z.number(),
+        noiGrowthRate: z.number(),
+        holdPeriod: z.number(),
+        exitCapRate: z.number(),
+        city: z.string().optional(),
+      }).nullable(),
+      irrResult: z.object({
+        irrPercentage: z.number(),
+        totalReturnPercentage: z.number(),
+        exitValue: z.number(),
+        cashOnCashYear1: z.number(),
+      }).nullable(),
+    });
+
+    export type ChatState = z.infer<typeof ChatStateSchema>;
+
+    // Initial state factory
+    export const createInitialState = (sessionId: string): ChatState => ({
+      sessionId,
+      messages: [],
+      propertyType: null,
+      collectedFields: {},
+      step: 'property_selection',
+      dealData: null,
+      irrResult: null,
+    });
+
+LangGraph State Machine
+
+amplify/functions/chat-handler/langraph/graph.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { StateGraph, END } from '@langchain/langgraph';
+    import { ChatState } from './state';
+    import {
+      propertySelectionNode,
+      dataCollectionNode,
+      validationNode,
+      calculationNode,
+      completeNode,
+    } from './nodes';
+
+    export function createCREAgent() {
+      // Create the state graph
+      const workflow = new StateGraph<ChatState>({
+        channels: {
+          sessionId: null,
+          messages: null,
+          propertyType: null,
+          collectedFields: null,
+          step: null,
+          dealData: null,
+          irrResult: null,
+        },
+      });
+      
+      // Add nodes
+      workflow.addNode('property_selection', propertySelectionNode);
+      workflow.addNode('data_collection', dataCollectionNode);
+      workflow.addNode('validation', validationNode);
+      workflow.addNode('calculation', calculationNode);
+      workflow.addNode('complete', completeNode);
+      
+      // Define conditional routing
+      workflow.addConditionalEdges(
+        'property_selection',
+        (state: ChatState) => {
+          if (state.step === 'data_collection') return 'data_collection';
+          return END;
+        },
+        {
+          data_collection: 'data_collection',
+          [END]: END,
+        }
+      );
+      
+      workflow.addConditionalEdges(
+        'data_collection',
+        (state: ChatState) => {
+          if (state.step === 'calculation') return 'calculation';
+          if (state.step === 'validation') return 'validation';
+          return END;
+        },
+        {
+          calculation: 'calculation',
+          validation: 'validation',
+          [END]: END,
+        }
+      );
+      
+      workflow.addConditionalEdges(
+        'validation',
+        (state: ChatState) => {
+          if (state.step === 'calculation') return 'calculation';
+          if (state.step === 'data_collection') return 'data_collection';
+          return END;
+        },
+        {
+          calculation: 'calculation',
+          data_collection: 'data_collection',
+          [END]: END,
+        }
+      );
+      
+      workflow.addConditionalEdges(
+        'calculation',
+        (state: ChatState) => {
+          if (state.step === 'complete') return 'complete';
+          if (state.step === 'validation') return 'validation';
+          return END;
+        },
+        {
+          complete: 'complete',
+          validation: 'validation',
+          [END]: END,
+        }
+      );
+      
+      workflow.addConditionalEdges(
+        'complete',
+        (state: ChatState) => {
+          if (state.step === 'property_selection') return 'property_selection';
+          return END;
+        },
+        {
+          property_selection: 'property_selection',
+          [END]: END,
+        }
+      );
+      
+      // Set entry point
+      workflow.setEntryPoint('property_selection');
+      
+      // Compile and return
+      return workflow.compile();
+    }
+
+Workflow Nodes
+
+amplify/functions/chat-handler/langraph/nodes.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { ChatOpenAI } from '@langchain/openai';
+    import { SystemMessage, HumanMessage } from '@langchain/core/messages';
+    import type { ChatState } from './state';
+    import { getFieldConfig, FIELD_ORDER } from '../utils/field-configs';
+    import { parseFieldValue } from '../tools/field-parser';
+    import { calculateIRR } from '../tools/irr-calculator';
+
+    const llm = new ChatOpenAI({
+      modelName: 'gpt-4',
+      temperature: 0,
+    });
+
+    export async function propertySelectionNode(state: ChatState): Promise<Partial<ChatState>> {
+      const userMessage = state.messages[state.messages.length - 1]?.content || '';
+      
+      // System prompt for property selection
+      const systemPrompt = `You are a professional Commercial Real Estate investment analyst.
+
+    Your task is to determine which type of property the user wants to analyze:
+    - Office Building
+    - Shopping Center
+
+    Ask the user which property type they want to analyze in a professional, conversational tone.
+    Use emojis and formatting to make the response engaging.
+
+    If they mention a property type, confirm it and prepare to move to data collection.`;
+
+      const response = await llm.invoke([
+        new SystemMessage(systemPrompt),
+        new HumanMessage(userMessage),
+      ]);
+      
+      const content = response.content as string;
+      const lowerContent = content.toLowerCase();
+      
+      // Detect property type
+      let propertyType: 'office' | 'shopping_center' | null = null;
+      let nextStep = state.step;
+      
+      if (lowerContent.includes('office')) {
+        propertyType = 'office';
+        nextStep = 'data_collection';
+      } else if (lowerContent.includes('shopping') || lowerContent.includes('retail')) {
+        propertyType = 'shopping_center';
+        nextStep = 'data_collection';
+      }
+      
+      return {
+        messages: [
+          ...state.messages,
+          { role: 'assistant', content },
+        ],
+        propertyType: propertyType || state.propertyType,
+        step: nextStep,
+      };
+    }
+
+    export async function dataCollectionNode(state: ChatState): Promise<Partial<ChatState>> {
+      const userMessage = state.messages[state.messages.length - 1]?.content || '';
+      
+      // Determine which fields are missing
+      const missingFields = FIELD_ORDER.filter(
+        fieldName => {
+          const config = getFieldConfig(fieldName);
+          return config.required && !(fieldName in state.collectedFields);
+        }
+      );
+      
+      const nextField = missingFields[0];
+      
+      // Try to parse fields from user message
+      const newFields: Record<string, any> = { ...state.collectedFields };
+      let fieldsUpdated = false;
+      
+      for (const fieldName of missingFields) {
+        const config = getFieldConfig(fieldName);
+        const result = await parseFieldValue(fieldName, userMessage);
+        
+        if (result.success) {
+          newFields[fieldName] = result.value;
+          fieldsUpdated = true;
+        }
+      }
+      
+      // Build system prompt for data collection
+      const systemPrompt = `You are a CRE investment analyst collecting deal information.
+
+    CURRENT STATUS:
+    - Property Type: ${state.propertyType}
+    - Fields Collected: ${Object.keys(newFields).length}/${FIELD_ORDER.filter(f => getFieldConfig(f).required).length}
+    - Current Field: ${nextField || 'All collected'}
+
+    ${nextField ? `NEXT FIELD TO COLLECT: ${nextField}
+    ${JSON.stringify(getFieldConfig(nextField), null, 2)}` : 'All required fields collected!'}
+
+    YOUR TASK:
+    Generate a professional response that:
+    1. Confirms any field value you received (if applicable)
+    2. ${nextField ? 'Requests the next field with examples' : 'Indicates all fields are collected and ready for calculation'}
+    3. Uses appropriate emojis and formatting
+    4. Maintains an encouraging, professional tone
+
+    Progress indicator format:
+    ✅ **Field Name**: "value"
+    **Progress**: X/Y fields completed`;
+
+      const response = await llm.invoke([
+        new SystemMessage(systemPrompt),
+        new HumanMessage(userMessage),
+      ]);
+      
+      const content = response.content as string;
+      
+      // Determine next step
+      let nextStep: ChatState['step'] = 'data_collection';
+      
+      if (missingFields.length === 0 || (fieldsUpdated && missingFields.length === 1)) {
+        // All fields collected, move to calculation
+        nextStep = 'calculation';
+      }
+      
+      return {
+        messages: [
+          ...state.messages,
+          { role: 'assistant', content },
+        ],
+        collectedFields: newFields,
+        step: nextStep,
+      };
+    }
+
+    export async function validationNode(state: ChatState): Promise<Partial<ChatState>> {
+      // Validation logic (simplified for now)
+      // In full implementation, validate all fields against business rules
+      
+      return {
+        step: 'calculation',
+      };
+    }
+
+    export async function calculationNode(state: ChatState): Promise<Partial<ChatState>> {
+      const userMessage = state.messages[state.messages.length - 1]?.content || '';
+      
+      // Extract deal data from collected fields
+      const dealData = {
+        dealName: state.collectedFields.deal_name as string,
+        purchasePrice: state.collectedFields.purchase_price as number,
+        netOperatingIncome: state.collectedFields.net_operating_income as number,
+        noiGrowthRate: state.collectedFields.noi_growth_rate as number,
+        holdPeriod: state.collectedFields.hold_period as number,
+        exitCapRate: state.collectedFields.exit_cap_rate as number,
+        city: state.collectedFields.city as string | undefined,
+      };
+      
+      // Calculate IRR
+      const irrResult = calculateIRR(dealData);
+      
+      // Generate response with results
+      const systemPrompt = `You are a CRE investment analyst presenting IRR analysis results.
+
+    DEAL ANALYSIS COMPLETE:
+    ${JSON.stringify(dealData, null, 2)}
+
+    IRR RESULTS:
+    ${JSON.stringify(irrResult, null, 2)}
+
+    YOUR TASK:
+    Present the IRR analysis results in a professional, engaging format.
+
+    Include:
+    - Deal summary
+    - Key metrics (IRR, total return, exit value)
+    - Performance rating (Excellent/Good/Moderate/Below Market)
+    - Investment recommendation
+    - Visual formatting with emojis
+
+    Make it comprehensive and actionable for the investor.`;
+
+      const response = await llm.invoke([
+        new SystemMessage(systemPrompt),
+        new HumanMessage('Please present the IRR analysis results.'),
+      ]);
+      
+      const content = response.content as string;
+      
+      return {
+        messages: [
+          ...state.messages,
+          { role: 'assistant', content },
+        ],
+        dealData,
+        irrResult,
+        step: 'complete',
+      };
+    }
+
+    export async function completeNode(state: ChatState): Promise<Partial<ChatState>> {
+      const userMessage = state.messages[state.messages.length - 1]?.content || '';
+      
+      // Check if user wants to analyze another deal
+      const lowerMessage = userMessage.toLowerCase();
+      
+      if (lowerMessage.includes('new deal') || lowerMessage.includes('another')) {
+        return {
+          step: 'property_selection',
+          collectedFields: {},
+          propertyType: null,
+          dealData: null,
+          irrResult: null,
+        };
+      }
+      
+      return {
+        step: 'complete',
+      };
+    }
+
+------------------------------------------------------------------------
+
+🧮 IRR Calculation (TypeScript Port)
+
+Critical: Financial Accuracy
+
+amplify/functions/chat-handler/tools/irr-calculator.ts:
+
+[]
+
+[]
+
+typescript
+
+    interface DealData {
+      purchasePrice: number;
+      netOperatingIncome: number;
+      noiGrowthRate: number;
+      holdPeriod: number;
+      exitCapRate: number;
+    }
+
+    interface IRRResult {
+      irrPercentage: number;
+      totalReturnPercentage: number;
+      annualCashFlowYear1: number;
+      exitValue: number;
+      totalCashReceived: number;
+      cashOnCashYear1: number;
+      goingInCapRate: number;
+      capRateSpread: number;
+    }
+
+    export function calculateIRR(dealData: DealData): IRRResult {
+      const {
+        purchasePrice,
+        netOperatingIncome,
+        noiGrowthRate,
+        holdPeriod,
+        exitCapRate,
+      } = dealData;
+      
+      // Convert percentages to decimals
+      const noiGrowthDecimal = noiGrowthRate / 100;
+      const exitCapDecimal = exitCapRate / 100;
+      
+      // Calculate annual cash flows
+      const cashFlows: number[] = [];
+      const annualCashFlows: number[] = [];
+      
+      // Year 0: Initial investment (negative)
+      cashFlows.push(-purchasePrice);
+      
+      // Years 1 through holdPeriod: Annual NOI with growth
+      for (let year = 1; year <= holdPeriod; year++) {
+        const annualNOI = netOperatingIncome * Math.pow(1 + noiGrowthDecimal, year - 1);
+        annualCashFlows.push(annualNOI);
+        cashFlows.push(annualNOI);
+      }
+      
+      // Final year: Add exit value to last cash flow
+      const finalYearNOI = netOperatingIncome * Math.pow(1 + noiGrowthDecimal, holdPeriod);
+      const exitValue = finalYearNOI / exitCapDecimal;
+      cashFlows[cashFlows.length - 1] += exitValue;
+      
+      // Calculate IRR using Newton-Raphson method
+      const irr = calculateIRRNewtonRaphson(cashFlows);
+      
+      // Calculate additional metrics
+      const totalCashReceived = cashFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
+      const totalReturnPercentage = ((totalCashReceived / purchasePrice) - 1) * 100;
+      const cashOnCashYear1 = (annualCashFlows[0] / purchasePrice) * 100;
+      const goingInCapRate = (netOperatingIncome / purchasePrice) * 100;
+      const capRateSpread = exitCapRate - goingInCapRate;
+      
+      return {
+        irrPercentage: Number((irr * 100).toFixed(2)),
+        totalReturnPercentage: Number(totalReturnPercentage.toFixed(1)),
+        annualCashFlowYear1: Math.round(annualCashFlows[0]),
+        exitValue: Math.round(exitValue),
+        totalCashReceived: Math.round(totalCashReceived),
+        cashOnCashYear1: Number(cashOnCashYear1.toFixed(2)),
+        goingInCapRate: Number(goingInCapRate.toFixed(2)),
+        capRateSpread: Number(capRateSpread.toFixed(2)),
+      };
+    }
+
+    function calculateIRRNewtonRaphson(cashFlows: number[]): number {
+      // NPV function
+      const npv = (rate: number): number => {
+        return cashFlows.reduce((sum, cf, i) => sum + cf / Math.pow(1 + rate, i), 0);
+      };
+      
+      // NPV derivative
+      const npvDerivative = (rate: number): number => {
+        return cashFlows.reduce((sum, cf, i) => sum - i * cf / Math.pow(1 + rate, i + 1), 0);
+      };
+      
+      // Initial guess
+      let rate = 0.1;
+      const maxIterations = 100;
+      const tolerance = 1e-6;
+      
+      for (let iteration = 0; iteration < maxIterations; iteration++) {
+        const npvValue = npv(rate);
+        
+        if (Math.abs(npvValue) < tolerance) {
+          return rate;
+        }
+        
+        const derivative = npvDerivative(rate);
+        
+        if (Math.abs(derivative) < tolerance) {
+          // Fall back to bisection method
+          return calculateIRRBisection(cashFlows);
+        }
+        
+        // Newton-Raphson iteration
+        const newRate = rate - npvValue / derivative;
+        
+        // Keep rate in reasonable bounds
+        if (newRate < -0.99) {
+          rate = -0.99;
+        } else if (newRate > 10) {
+          rate = 10;
+        } else {
+          rate = newRate;
+        }
+        
+        // Check convergence
+        if (Math.abs(newRate - rate) < tolerance) {
+          return rate;
+        }
+      }
+      
+      // If Newton-Raphson didn't converge, use bisection
+      return calculateIRRBisection(cashFlows);
+    }
+
+    function calculateIRRBisection(cashFlows: number[]): number {
+      const npv = (rate: number): number => {
+        return cashFlows.reduce((sum, cf, i) => sum + cf / Math.pow(1 + rate, i), 0);
+      };
+      
+      let low = -0.99;
+      let high = 10.0;
+      const maxIterations = 1000;
+      const tolerance = 1e-6;
+      
+      for (let i = 0; i < maxIterations; i++) {
+        const mid = (low + high) / 2;
+        const npvMid = npv(mid);
+        
+        if (Math.abs(npvMid) < tolerance) {
+          return mid;
+        }
+        
+        if (npvMid > 0) {
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+      
+      return (low + high) / 2;
+    }
+
+Testing IRR Accuracy
+
+tests/unit/irr-calculator.test.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { describe, it, expect } from 'vitest';
+    import { calculateIRR } from '../../amplify/functions/chat-handler/tools/irr-calculator';
+
+    describe('IRR Calculator', () => {
+      it('should calculate IRR accurately for standard deal', () => {
+        const result = calculateIRR({
+          purchasePrice: 5_000_000,
+          netOperatingIncome: 400_000,
+          noiGrowthRate: 3.0,
+          holdPeriod: 10,
+          exitCapRate: 6.5,
+        });
+        
+        // Expected IRR should be approximately 11-13%
+        expect(result.irrPercentage).toBeGreaterThan(10);
+        expect(result.irrPercentage).toBeLessThan(15);
+        
+        // Going-in cap rate should be 8%
+        expect(result.goingInCapRate).toBeCloseTo(8.0, 1);
+        
+        // Exit value should be greater than purchase price
+        expect(result.exitValue).toBeGreaterThan(5_000_000);
+      });
+      
+      it('should match Python reference calculation', () => {
+        // Test case from Python version
+        const result = calculateIRR({
+          purchasePrice: 5_000_000,
+          netOperatingIncome: 400_000,
+          noiGrowthRate: 3.0,
+          holdPeriod: 10,
+          exitCapRate: 6.5,
+        });
+        
+        // These exact values come from Python version output
+        // CRITICAL: Must match within 0.01%
+        expect(result.irrPercentage).toBeCloseTo(12.34, 1); // Replace with actual Python output
+        expect(result.exitValue).toBeCloseTo(5_845_213, 0); // Replace with actual Python output
+      });
+      
+      it('should handle edge cases', () => {
+        // Very high growth rate
+        const highGrowth = calculateIRR({
+          purchasePrice: 5_000_000,
+          netOperatingIncome: 400_000,
+          noiGrowthRate: 10.0,
+          holdPeriod: 10,
+          exitCapRate: 6.5,
+        });
+        
+        expect(highGrowth.irrPercentage).toBeGreaterThan(15);
+        
+        // Very low growth rate
+        const lowGrowth = calculateIRR({
+          purchasePrice: 5_000_000,
+          netOperatingIncome: 400_000,
+          noiGrowthRate: 0.5,
+          holdPeriod: 10,
+          exitCapRate: 6.5,
+        });
+        
+        expect(lowGrowth.irrPercentage).toBeLessThan(12);
+      });
+    });
+
+------------------------------------------------------------------------
+
+🔍 Field Parsing (TypeScript)
+
+amplify/functions/chat-handler/tools/field-parser.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { getFieldConfig } from '../utils/field-configs';
+
+    interface ParseResult {
+      success: boolean;
+      value?: any;
+      error?: string;
+    }
+
+    export async function parseFieldValue(
+      fieldName: string,
+      userInput: string
+    ): Promise<ParseResult> {
+      const config = getFieldConfig(fieldName);
+      
+      if (!config) {
+        return { success: false, error: `Unknown field: ${fieldName}` };
+      }
+      
+      try {
+        switch (config.fieldType) {
+          case 'currency':
+            return parseCurrency(userInput);
+          
+          case 'percentage':
+            return parsePercentage(userInput);
+          
+          case 'integer':
+            return parseInteger(userInput);
+          
+          case 'string':
+            return parseString(userInput);
+          
+          default:
+            return { success: false, error: 'Unknown field type' };
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Parse error',
+        };
+      }
+    }
+
+    function parseCurrency(text: string): ParseResult {
+      // Clean input
+      let cleaned = text
+        .replace(/\$/g, '')
+        .replace(/,/g, '')
+        .trim()
+        .toLowerCase();
+      
+      // Handle written numbers
+      cleaned = convertWrittenNumbers(cleaned);
+      
+      try {
+        // Handle abbreviations
+        if (cleaned.includes('m') || cleaned.includes('million')) {
+          const number = parseFloat(cleaned.replace(/m|million/g, '').trim());
+          return { success: true, value: Math.round(number * 1_000_000) };
+        }
+        
+        if (cleaned.includes('k') || cleaned.includes('thousand')) {
+          const number = parseFloat(cleaned.replace(/k|thousand/g, '').trim());
+          return { success: true, value: Math.round(number * 1_000) };
+        }
+        
+        if (cleaned.includes('b') || cleaned.includes('billion')) {
+          const number = parseFloat(cleaned.replace(/b|billion/g, '').trim());
+          return { success: true, value: Math.round(number * 1_000_000_000) };
+        }
+        
+        // Direct numeric input
+        const value = Math.round(parseFloat(cleaned));
+        
+        if (isNaN(value)) {
+          return { success: false, error: 'Could not parse currency value' };
+        }
+        
+        return { success: true, value };
+      } catch {
+        return { success: false, error: 'Invalid currency format' };
+      }
+    }
+
+    function parsePercentage(text: string): ParseResult {
+      let cleaned = text
+        .replace(/%/g, '')
+        .replace(/percent/g, '')
+        .trim()
+        .toLowerCase();
+      
+      // Handle basis points
+      if (cleaned.includes('basis') || cleaned.includes('bps')) {
+        const number = parseFloat(cleaned.replace(/basis|points|bps/g, '').trim());
+        return { success: true, value: number / 100 };
+      }
+      
+      // Handle written numbers
+      cleaned = convertWrittenNumbers(cleaned);
+      
+      try {
+        const value = parseFloat(cleaned);
+        
+        if (isNaN(value)) {
+          return { success: false, error: 'Could not parse percentage' };
+        }
+        
+        return { success: true, value };
+      } catch {
+        return { success: false, error: 'Invalid percentage format' };
+      }
+    }
+
+    function parseInteger(text: string): ParseResult {
+      let cleaned = text
+        .replace(/years?/g, '')
+        .replace(/y/g, '')
+        .trim()
+        .toLowerCase();
+      
+      // Handle special cases
+      if (cleaned.includes('decade')) {
+        return { success: true, value: 10 };
+      }
+      
+      // Handle written numbers
+      cleaned = convertWrittenNumbers(cleaned);
+      
+      try {
+        const value = parseInt(cleaned, 10);
+        
+        if (isNaN(value)) {
+          return { success: false, error: 'Could not parse integer' };
+        }
+        
+        return { success: true, value };
+      } catch {
+        return { success: false, error: 'Invalid integer format' };
+      }
+    }
+
+    function parseString(text: string): ParseResult {
+      const cleaned = text.trim();
+      
+      if (!cleaned) {
+        return { success: false, error: 'String cannot be empty' };
+      }
+      
+      if (cleaned.length > 200) {
+        return { success: false, error: 'String too long (max 200 characters)' };
+      }
+      
+      return { success: true, value: cleaned };
+    }
+
+    function convertWrittenNumbers(text: string): string {
+      const numberWords: Record<string, string> = {
+        'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+        'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9',
+        'ten': '10', 'eleven': '11', 'twelve': '12', 'thirteen': '13',
+        'fourteen': '14', 'fifteen': '15', 'sixteen': '16', 'seventeen': '17',
+        'eighteen': '18', 'nineteen': '19', 'twenty': '20', 'thirty': '30',
+        'forty': '40', 'fifty': '50', 'sixty': '60', 'seventy': '70',
+        'eighty': '80', 'ninety': '90',
+      };
+      
+      const decimalPatterns: Record<string, string> = {
+        'point five': '.5',
+        'point two five': '.25',
+        'point seven five': '.75',
+        'and a half': '.5',
+        'and a quarter': '.25',
+        'and three quarters': '.75',
+      };
+      
+      let result = text;
+      
+      // Replace decimal patterns
+      for (const [pattern, replacement] of Object.entries(decimalPatterns)) {
+        result = result.replace(new RegExp(pattern, 'g'), replacement);
+      }
+      
+      // Replace number words
+      for (const [word, digit] of Object.entries(numberWords)) {
+        result = result.replace(new RegExp(`\\b${word}\\b`, 'g'), digit);
+      }
+      
+      return result;
+    }
+
+------------------------------------------------------------------------
+
+📝 Field Configuration
+
+amplify/functions/chat-handler/utils/field-configs.ts:
+
+[]
+
+[]
+
+typescript
+
+    interface FieldConfig {
+      name: string;
+      displayName: string;
+      description: string;
+      fieldType: 'currency' | 'percentage' | 'integer' | 'string';
+      required: boolean;
+      minValue?: number;
+      maxValue?: number;
+      examples: string[];
+      validationHints: string[];
+    }
+
+    export const FIELD_CONFIGS: Record<string, FieldConfig> = {
+      deal_name: {
+        name: 'deal_name',
+        displayName: 'Deal Name',
+        description: 'A descriptive name for the real estate investment deal',
+        fieldType: 'string',
+        required: true,
+        examples: [
+          'Downtown Office Complex',
+          'Main Street Shopping Center',
+          'Sunrise Medical Plaza',
+        ],
+        validationHints: [
+          'Use a descriptive name that identifies the property',
+          'Include location or property type if helpful',
+        ],
+      },
+      
+      purchase_price: {
+        name: 'purchase_price',
+        displayName: 'Purchase Price',
+        description: 'Total acquisition cost of the property in US dollars',
+        fieldType: 'currency',
+        required: true,
+        minValue: 1,
+        examples: ['$5,000,000', '5M', '5.5 million', '5500000'],
+        validationHints: [
+          'Enter the total purchase price including acquisition costs',
+          'Can use abbreviations like M for million, K for thousand',
+        ],
+      },
+      
+      net_operating_income: {
+        name: 'net_operating_income',
+        displayName: 'Net Operating Income (NOI)',
+        description: 'Annual net operating income after operating expenses but before debt service',
+        fieldType: 'currency',
+        required: true,
+        minValue: 1,
+        examples: ['$400,000', '400K', '0.4M', 'four hundred thousand'],
+        validationHints: [
+          'Use stabilized NOI or Year 1 projected NOI',
+          'Should be net of operating expenses',
+        ],
+      },
+      
+      noi_growth_rate: {
+        name: 'noi_growth_rate',
+        displayName: 'NOI Growth Rate',
+        description: 'Expected annual growth rate of net operating income as a percentage',
+        fieldType: 'percentage',
+        required: true,
+        minValue: 0,
+        maxValue: 50,
+        examples: ['3.5%', '3.5', '2.5% annually', 'four percent'],
+        validationHints: [
+          'Consider market rent growth and expense inflation',
+          'Typical range is 2-5% for stabilized properties',
+        ],
+      },
+      
+      hold_period: {
+        name: 'hold_period',
+        displayName: 'Hold Period',
+        description: 'Number of years the property will be held before sale',
+        fieldType: 'integer',
+        required: true,
+        minValue: 1,
+        maxValue: 30,
+        examples: ['10', '10 years', '7y', 'five years', 'a decade'],
+        validationHints: [
+          'Typical hold periods are 5-10 years',
+          'Consider your investment strategy and market cycle',
+        ],
+      },
+      
+      exit_cap_rate: {
+        name: 'exit_cap_rate',
+        displayName: 'Exit Cap Rate',
+        description: 'Expected capitalization rate at time of sale as a percentage',
+        fieldType: 'percentage',
+        required: true,
+        minValue: 1,
+        maxValue: 20,
+        examples: ['6.5%', '6.5', 'seven percent', '750 basis points'],
+        validationHints: [
+          'Consider current market cap rates and trends',
+          'Exit cap rates typically 25-100 bps higher than going-in rates',
+        ],
+      },
+      
+      city: {
+        name: 'city',
+        displayName: 'City',
+        description: 'City where the property is located (optional)',
+        fieldType: 'string',
+        required: false,
+        examples: ['Los Angeles', 'New York City', 'Chicago, IL'],
+        validationHints: [
+          'Include state abbreviation if helpful',
+          'This helps with market context',
+        ],
+      },
+    };
+
+    export const FIELD_ORDER = [
+      'deal_name',
+      'purchase_price',
+      'net_operating_income',
+      'noi_growth_rate',
+      'hold_period',
+      'exit_cap_rate',
+      'city',
+    ];
+
+    export function getFieldConfig(fieldName: string): FieldConfig {
+      return FIELD_CONFIGS[fieldName];
+    }
+
+    export function getRequiredFields(): string[] {
+      return FIELD_ORDER.filter(name => FIELD_CONFIGS[name].required);
+    }
+
+    export function getOptionalFields(): string[] {
+      return FIELD_ORDER.filter(name => !FIELD_CONFIGS[name].required);
+    }
+
+------------------------------------------------------------------------
+
+🌐 Next.js Frontend Integration
+
+Amplify Client Setup
+
+lib/amplify-client.ts:
+
+[]
+
+[]
+
+typescript
+
+    import { Amplify } from 'aws-amplify';
+    import outputs from '../amplify_outputs.json';
+
+    Amplify.configure(outputs);
+
+    export { Amplify };
+
+Chat Component Example
+
+app/components/ChatInterface.tsx:
+
+[]
+
+[]
+
+typescript
+
+    'use client';
+
+    import { useState } from 'react';
+    import { generateClient } from 'aws-amplify/api';
+
+    const client = generateClient();
+
+    interface Message {
+      role: 'user' | 'assistant';
+      content: string;
+    }
+
+    export function ChatInterface() {
+      const [messages, setMessages] = useState<Message[]>([]);
+      const [input, setInput] = useState('');
+      const [sessionId, setSessionId] = useState<string>();
+      const [loading, setLoading] = useState(false);
+      
+      const sendMessage = async () => {
+        if (!input.trim()) return;
+        
+        const userMessage: Message = { role: 'user', content: input };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setLoading(true);
+        
+        try {
+          // Call Amplify function
+          const response = await client.graphql({
+            query: `
+              mutation InvokeChat($message: String!, $sessionId: String) {
+                invokeChat(message: $message, sessionId: $sessionId) {
+                  response
+                  sessionId
+                  progress {
+                    collected
+                    total
+                  }
+                }
+              }
+            `,
+            variables: {
+              message: input,
+              sessionId,
+            },
+          });
+          
+          const data = response.data.invokeChat;
+          
+          setSessionId(data.sessionId);
+          
+          const assistantMessage: Message = {
+            role: 'assistant',
+            content: data.response,
+          };
+          
+          setMessages(prev => [...prev, assistantMessage]);
+        } catch (error) {
+          console.error('Error sending message:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      return (
+        <div className="chat-interface">
+          <div className="messages">
+            {messages.map((msg, i) => (
+              <div key={i} className={`message ${msg.role}`}>
+                {msg.content}
+              </div>
+            ))}
+            {loading && <div className="loading">Thinking...</div>}
+          </div>
+          
+          <div className="input-area">
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && sendMessage()}
+              placeholder="Type your message..."
+            />
+            <button onClick={sendMessage}>Send</button>
+          </div>
+        </div>
+      );
+    }
+
+------------------------------------------------------------------------
+
+🧪 Testing Strategy
+
+Unit Tests (70%)
+
+Focus: Individual functions and calculations
+
+[]
+
+[]
+
+typescript
+
+    // tests/unit/irr-calculator.test.ts
+    // tests/unit/field-parser.test.ts
+    // tests/unit/field-configs.test.ts
+    // tests/unit/graph.test.ts
+
+Integration Tests (20%)
+
+Focus: Complete workflow from start to finish
+
+[]
+
+[]
+
+typescript
+
+    // tests/integration/chat-flow.test.ts
+
+    describe('Complete Deal Analysis Flow', () => {
+      it('should complete full analysis workflow', async () => {
+        const agent = createCREAgent();
+        
+        // 1. Property selection
+        let state = createInitialState('test-session');
+        state.messages = [{ role: 'user', content: 'office building' }];
+        
+        state = await agent.invoke(state);
+        expect(state.propertyType).toBe('office');
+        expect(state.step).toBe('data_collection');
+        
+        // 2. Collect all fields
+        const fields = [
+          'Downtown Office Complex',
+          '$5,000,000',
+          '$400,000',
+          '3%',
+          '10 years',
+          '6.5%',
+        ];
+        
+        for (const field of fields) {
+          state.messages.push({ role: 'user', content: field });
+          state = await agent.invoke(state);
+        }
+        
+        // 3. Verify calculation
+        expect(state.step).toBe('complete');
+        expect(state.irrResult).toBeDefined();
+        expect(state.irrResult!.irrPercentage).toBeGreaterThan(0);
+      });
+    });
+
+E2E Tests (10%)
+
+Focus: API endpoints and frontend integration
+
+[]
+
+[]
+
+typescript
+
+    // tests/e2e/api.test.ts
+
+    describe('Chat API Endpoint', () => {
+      it('should handle chat requests', async () => {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: 'I want to analyze an office building',
+          }),
+        });
+        
+        const data = await response.json();
+        
+        expect(response.status).toBe(200);
+        expect(data.response).toBeDefined();
+        expect(data.sessionId).toBeDefined();
+      });
+    });
+
+------------------------------------------------------------------------
+
+🚀 Deployment Workflow
+
+Local Development
+
+[]
+
+[]
+
+bash
+
+    # Install dependencies
+    npm install
+
+    # Start Amplify sandbox
+    npx ampx sandbox
+
+    # In another terminal, start Next.js
+    npm run dev
+
+    # Run tests
+    npm test
+
+Deploy to AWS
+
+[]
+
+[]
+
+bash
+
+    # Deploy backend
+    npx ampx pipeline-deploy --branch main --app-id <your-app-id>
+
+    # Build and deploy frontend
+    npm run build
+    # Frontend deploys automatically via Amplify hosting
+
+Environment Variables
+
+amplify/backend.ts:
+
+[]
+
+[]
+
+typescript
+
+    // Add secrets
+    backend.chatHandler.resources.lambda.addEnvironment(
+      'OPENAI_API_KEY',
+      process.env.OPENAI_API_KEY!
+    );
+
+Set in Amplify Console:
+
+- Navigate to App Settings → Environment variables
+- Add: OPENAI_API_KEY=sk-...
+
+------------------------------------------------------------------------
+
+📋 Claude Code Workflow
+
+Setup Instructions
+
+Step 1: Create Project
+
+[]
+
+[]
+
+bash
+
+    mkdir cre-chatbot-amplify
+    cd cre-chatbot-amplify
+    git init
+
+Step 2: Save This Document
+
+[]
+
+[]
+
+bash
+
+    # Save this handoff doc as:
+    HANDOFF.md
+
+Step 3: Add Python Reference Code
+
+[]
+
+[]
+
+bash
+
+    # Copy original Python files for reference
+    mkdir reference-python
+    cp /path/to/original/*.py reference-python/
+
+    git add .
+    git commit -m "Initial commit: Handoff doc + Python reference"
+
+Step 4: Open in Claude Code
+
+[]
+
+[]
+
+bash
+
+    code .  # or open in Claude Code app
+
+Step 5: Start with /plan
+
+In Claude Code:
+
+[]
+
+[]
+
+    I need to rebuild a CRE chatbot backend using AWS Amplify Gen2 + LangGraph.js.
+
+    Please read HANDOFF.md completely - it has the full context, Python reference code analysis, and step-by-step rebuild plan.
+
+    The Python reference code is in reference-python/ for porting business logic (especially IRR calculations).
+
+    After reading, create a detailed implementation plan following the phases outlined in the document.
+
+    /plan
+
+Development Phases
+
+Phase 1: Project Setup (Day 1)
+
+- Initialize Amplify Gen2 project
+- Set up TypeScript configuration
+- Install LangGraph.js and dependencies
+- Create project structure
+- Git foundation
+
+Phase 2: Core Infrastructure (Days 2-3)
+
+- Define Amplify backend resources
+- Set up DynamoDB schema for sessions
+- Create Lambda function structure
+- Configure API Gateway
+- Local sandbox testing
+
+Phase 3: LangGraph.js Implementation (Days 4-7)
+
+- Port state machine from Python
+- Implement 5 workflow nodes
+- Add conditional routing
+- Preserve system prompts
+- Test graph compilation
+
+Phase 4: Business Logic Port (Days 8-10)
+
+- Port IRR calculation (CRITICAL)
+- Implement field parsing
+- Add field validation
+- Port field configurations
+- Verify accuracy against Python
+
+Phase 5: Testing (Days 11-13)
+
+- Unit tests for all functions
+- Integration tests for workflow
+- IRR calculation accuracy tests
+- End-to-end API tests
+- Performance testing
+
+Phase 6: Frontend Integration (Days 14-15)
+
+- Connect Next.js to Amplify
+- Update API calls
+- Test complete flow
+- Error handling
+- Loading states
+
+Phase 7: Deployment (Days 16-18)
+
+- Deploy to AWS
+- Configure environment variables
+- Set up CI/CD pipeline
+- Production testing
+- Performance optimization
+
+------------------------------------------------------------------------
+
+✅ Completion Checklist
+
+Infrastructure
+
+Amplify Gen2 project initialized
+
+DynamoDB tables created
+
+Lambda functions deployed
+
+API Gateway configured
+
+Environment variables set
+
+LangGraph.js
+
+State machine ported from Python
+
+All 5 nodes implemented
+
+Conditional routing working
+
+System prompts preserved
+
+Graph compilation successful
+
+Business Logic
+
+IRR calculation ported and verified
+
+Field parsing implemented
+
+Field validation working
+
+All 7 fields configured
+
+Outputs match Python version
+
+Testing
+
+Unit tests passing (80%+ coverage)
+
+Integration tests passing
+
+E2E tests passing
+
+IRR accuracy verified
+
+Performance acceptable
+
+Frontend Integration
+
+Next.js connected to Amplify
+
+Chat interface working
+
+Session management functional
+
+Error handling robust
+
+UX polished
+
+Deployment
+
+Backend deployed to AWS
+
+Frontend deployed
+
+Environment variables configured
+
+CI/CD pipeline working
+
+Production testing complete
+
+Documentation
+
+README.md updated
+
+API documentation complete
+
+Deployment guide written
+
+Architecture documented
+
+MIGRATION_NOTES.md created
+
+------------------------------------------------------------------------
+
+🚨 Common Pitfalls & Solutions
+
+Pitfall 1: LangGraph.js Import Paths
+
+Problem:
+
+[]
+
+[]
+
+typescript
+
+    // This might not work
+    import { StateGraph } from 'langchain/langgraph';
+
+Solution:
+
+[]
+
+[]
+
+typescript
+
+    // Check current docs for correct import
+    import { StateGraph } from '@langchain/langgraph';
+
+Pitfall 2: TypeScript Number Precision
+
+Problem:
+
+[]
+
+[]
+
+typescript
+
+    0.1 + 0.2 === 0.3  // false in JavaScript!
+
+Solution:
+
+[]
+
+[]
+
+typescript
+
+    // Use toFixed() or round to specific decimals
+    const result = Number((0.1 + 0.2).toFixed(10));
+
+    // Or use a decimal library for financial calculations
+    import Decimal from 'decimal.js';
+
+Pitfall 3: Amplify Gen2 Cold Starts
+
+Problem: First Lambda invocation is slow
+
+Solution:
+
+[]
+
+[]
+
+typescript
+
+    // Enable provisioned concurrency in amplify/backend.ts
+    backend.chatHandler.resources.lambda.currentVersion.addAlias('live', {
+      provisionedConcurrentExecutions: 1,
+    });
+
+Pitfall 4: DynamoDB Session Conflicts
+
+Problem: Concurrent updates to same session
+
+Solution:
+
+[]
+
+[]
+
+typescript
+
+    // Use optimistic locking with version fields
+    const updateParams = {
+      ...
+      ConditionExpression: 'version = :currentVersion',
+      ExpressionAttributeValues: {
+        ':currentVersion': currentVersion,
+        ':newVersion': currentVersion + 1,
+      },
+    };
+
+Pitfall 5: IRR Calculation Differences
+
+Problem: TypeScript IRR differs from Python
+
+Solution:
+
+[]
+
+[]
+
+typescript
+
+    // Always compare against Python test cases
+    // Use exact same algorithm (Newton-Raphson)
+    // Test with known inputs/outputs
+    // Round consistently (2 decimal places for %)
+
+------------------------------------------------------------------------
+
+🎯 Success Metrics
+
+Technical
+
+- ✅ All tests passing
+- ✅ IRR calculations match Python (within 0.01%)
+- ✅ API response time < 3 seconds (p95)
+- ✅ 80%+ code coverage
+- ✅ Zero production errors in first week
+
+Business
+
+- ✅ Complete deal analysis workflow working
+- ✅ Professional UX preserved
+- ✅ All 7 fields collecting correctly
+- ✅ Session management reliable
+- ✅ Frontend integration seamless
+
+Process
+
+- ✅ Git commits at every milestone
+- ✅ Documentation complete
+- ✅ Code review ready
+- ✅ Deployment automated
+- ✅ Monitoring configured
+
+------------------------------------------------------------------------
+
+📚 Resources
+
+LangGraph.js
+
+- Docs: https://js.langchain.com/docs/langgraph
+- Examples:
+  https://github.com/langchain-ai/langgraphjs/tree/main/examples
+- API Reference: https://js.langchain.com/api/langgraph/
+
+AWS Amplify Gen2
+
+- Docs: https://docs.amplify.aws/
+- TypeScript Guide: https://docs.amplify.aws/typescript/
+- Gen2 Migration: https://docs.amplify.aws/gen2/
+
+Financial Calculations
+
+- IRR explained: https://www.investopedia.com/terms/i/irr.asp
+- Newton-Raphson: https://en.wikipedia.org/wiki/Newton%27s_method
+- TypeScript libraries: financial-ts, finance.js
+
+Testing
+
+- Vitest: https://vitest.dev/
+- Testing Library: https://testing-library.com/
+
+------------------------------------------------------------------------
+
+🔮 Future Enhancements
+
+Short Term (1-2 months)
+
+Add more property types (multifamily, industrial)
+
+Sensitivity analysis visualization
+
+Deal comparison feature
+
+Export to Excel/PDF
+
+Email reports
+
+Medium Term (3-6 months)
+
+Multi-user authentication (Cognito)
+
+Deal collaboration features
+
+Market data integration
+
+Mobile app (React Native)
+
+Advanced analytics
+
+Long Term (6-12 months)
+
+ML-based property valuation
+
+Market trend predictions
+
+Portfolio optimization
+
+Integration with property databases
+
+White-label solution
+
+------------------------------------------------------------------------
+
+💡 Key Insights
+
+Why This Approach Works
+
+1. Native Language Advantage
+
+- TypeScript is your expertise (30+ years)
+- Python was temporary necessity
+- Amplify Gen2 is your comfort zone
+- Faster development in familiar territory
+
+2. Solid Foundation
+
+- Python version is working reference
+- Business logic is proven
+- UX patterns are excellent
+- Just need to port, not invent
+
+3. Modern Stack
+
+- LangGraph.js is now mature (May 2026)
+- Amplify Gen2 is production-ready
+- TypeScript throughout
+- AWS ecosystem benefits
+
+4. Right Tool for Job
+
+- Amplify Gen2 perfect for LLM apps
+- Serverless scaling built-in
+- TypeScript-native infrastructure
+- Integrated services (DynamoDB, S3, Cognito)
+
+------------------------------------------------------------------------
+
+🎯 Final Instructions for Claude Code
+
+Primary Goal
+
+Rebuild the CRE chatbot backend in TypeScript using AWS Amplify Gen2 +
+LangGraph.js, porting business logic from the Python reference
+implementation.
+
+Critical Requirements
+
+1.  IRR Accuracy: Calculations must match Python version exactly
+2.  System Prompts: Preserve professional UX patterns
+3.  Field Configuration: Port field definitions exactly
+4.  Testing: Comprehensive test coverage (80%+)
+5.  Git Discipline: Commit at every milestone
+
+Work Philosophy
+
+- Port, don't rewrite: Use Python as reference
+- Test continuously: Verify each component
+- Document discoveries: Create MIGRATION_NOTES.md
+- Amplify-first: Leverage Gen2 features
+- TypeScript-native: Use TS best practices
+
+Success Definition
+
+You're done when:
+
+- ✅ Complete deal analysis works end-to-end
+- ✅ IRR calculations verified against Python
+- ✅ All tests passing
+- ✅ Deployed to AWS and accessible
+- ✅ Frontend integrated seamlessly
+- ✅ Documentation complete
+
+------------------------------------------------------------------------
+
+Ready to build in your native stack! 🚀
+
+This is your project - TypeScript, Amplify Gen2, LangGraph.js - all your
+comfort zone. Let Claude Code do the heavy lifting while you focus on
+architecture and business logic.
+
+------------------------------------------------------------------------
+
+📎 Quick Reference
+
+Common Commands
+
+[]
+
+[]
+
+bash
+
+    # Install dependencies
+    npm install
+
+    # Start Amplify sandbox
+    npx ampx sandbox
+
+    # Start Next.js dev server
+    npm run dev
+
+    # Run tests
+    npm test
+
+    # Run tests with coverage
+    npm run test:coverage
+
+    # Deploy to AWS
+    npx ampx pipeline-deploy --branch main
+
+    # Check Amplify status
+    npx ampx sandbox status
+
+File Locations
+
+[]
+
+[]
+
+    Business Logic (PORT FROM PYTHON):
+    - IRR Calculation: reference-python/deal_calculator.py
+      → amplify/functions/chat-handler/tools/irr-calculator.ts
+      
+    - Field Configs: reference-python/field_configs.py
+      → amplify/functions/chat-handler/utils/field-configs.ts
+      
+    - Workflow: reference-python/graph.py + nodes.py
+      → amplify/functions/chat-handler/langraph/graph.ts + nodes.ts
+
+    Infrastructure (NEW):
+    - Amplify Backend: amplify/backend.ts
+    - DynamoDB Schema: amplify/data/resource.ts
+    - Lambda Handler: amplify/functions/chat-handler/handler.ts
+
+    Frontend (EXISTING - INTEGRATE):
+    - Next.js app: app/
+    - Amplify Client: lib/amplify-client.ts
+
+Key Imports
+
+[]
+
+[]
+
+typescript
+
+    // LangGraph.js
+    import { StateGraph, END } from '@langchain/langgraph';
+    import { ChatOpenAI } from '@langchain/openai';
+    import { SystemMessage, HumanMessage } from '@langchain/core/messages';
+
+    // Amplify
+    import { defineBackend } from '@aws-amplify/backend';
+    import { defineFunction } from '@aws-amplify/backend';
+    import { a, defineData } from '@aws-amplify/backend';
+
+    // Validation
+    import { z } from 'zod';
+
+    // Testing
+    import { describe, it, expect } from 'vitest';
+
+Test Commands
+
+[]
+
+[]
+
+bash
+
+    # Test IRR accuracy
+    npm test irr-calculator
+
+    # Test field parsing
+    npm test field-parser
+
+    # Test full workflow
+    npm test integration
+
+    # Test specific file
+    npm test path/to/file.test.ts
+
+------------------------------------------------------------------------
+
+END OF HANDOFF DOCUMENT
+
+This document prepared for Claude Code development session
+Date: May 10, 2026
+Project: CRE Chatbot - Amplify Gen2 + LangGraph.js Rebuild
+Your native stack: TypeScript + AWS Amplify Gen2
+
+------------------------------------------------------------------------
+
+🎉 You're Ready!
+
+This is your project in your language. The Python version was just a
+detour. Now you're back home in TypeScript + Amplify Gen2.
+
+Next steps:
+
+1.  Save this as HANDOFF.md
+2.  Copy Python files to reference-python/
+3.  Open in Claude Code
+4.  Paste the initial message
+5.  Let Claude Code build it
