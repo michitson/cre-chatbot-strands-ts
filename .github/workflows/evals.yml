@@ -1,0 +1,47 @@
+name: Evals
+
+# Real Bedrock calls — runs on demand, not on every push.
+# Triggers:
+#   - Manual via the GitHub Actions "Run workflow" button
+#   - On push to main, only if the workflow secrets are configured
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'amplify/functions/chat-handler/**'
+      - 'tests/evals/**'
+      - '.github/workflows/evals.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  evals:
+    name: agent behavior evals (Bedrock)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Only run if the AWS credentials secret is configured. Avoids
+    # repeated failures when the secret isn't set yet.
+    if: ${{ vars.RUN_EVALS == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_EVALS_ROLE_ARN }}
+          aws-region: us-west-2
+
+      - name: Run evals
+        run: npm run test:evals

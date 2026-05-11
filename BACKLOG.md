@@ -10,9 +10,11 @@ Parking lot for ideas we've discussed but haven't built. Roughly ordered by
   options: build it ourselves on `amplify/data/resource.ts`, or use Strands's
   built-in `SessionManager` (`session/s3-storage.ts` ships out of the box and
   works via the `sessionManager` option on `new Agent({...})`).
-- **Pin a specific Bedrock model ID.** Defaults shift over time and cost/quality
-  vary. Lock to a known good model in `new Agent({ model: '...' })` and surface
-  it in `amplify_outputs.json` so the frontend can show "powered by X."
+- ~~**Pin a specific Bedrock model ID.**~~ ✅ Shipped 2026-05-11 — pinned to
+  `global.anthropic.claude-sonnet-4-6` (the global cross-region inference
+  profile, works from us-west-2) in
+  `amplify/functions/chat-handler/config.ts`. Surfaced via
+  `amplify_outputs.json.custom.bedrockModelId`.
 - **Auth on the Function URL.** Today it's `authType: NONE` and the URL is
   shareable. Options: API key, Cognito JWT, or IAM-signed (requires a tiny
   signing layer in the frontend). For a side project that's fine; for any
@@ -105,7 +107,18 @@ Things to build on top:
 - ~~`HANDOFF.md` is the pre-pivot LangGraph plan and is now misleading.~~ ✅
   Shipped 2026-05-11 — moved to `docs/archive/handoff-2026-05-10.md` with
   a "historical" preamble.
-- **Push to public GitHub.** The repo lives locally only today. Target:
-  `github.com/michitson/cre-chatbot-strands-ts` (or similar), with topics,
-  description, and the social preview image set. Part of the
-  portfolio-pivot Phase 2 work.
+- ~~**Push to public GitHub.**~~ ✅ Shipped 2026-05-11 —
+  [github.com/michitson/cre-chatbot-strands-ts](https://github.com/michitson/cre-chatbot-strands-ts),
+  public, with description and topics. CI green on `main` via
+  `.github/workflows/ci.yml` (typecheck + tests + Next.js build).
+
+## Evals (post-Phase-5)
+
+- ~~**Eval scenarios harness.**~~ ✅ Shipped 2026-05-11 —
+  `tests/evals/{scenarios.ts,run-evals.ts}` plus `npm run test:evals`.
+  CI workflow at `.github/workflows/evals.yml` gated on a `RUN_EVALS`
+  repo variable + an OIDC role (so PRs from forks can't spend
+  Bedrock).
+- **Grow the scenario set.** Two scenarios today (happy path, sensitivity).
+  Add: edge cases (negative IRR, missing field, large numbers), the
+  adjust-assumptions loop, the "new deal" branch from the system prompt.

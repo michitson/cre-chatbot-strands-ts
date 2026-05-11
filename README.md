@@ -199,6 +199,26 @@ Setup:
   [`amplify/functions/chat-handler/telemetry.ts`](amplify/functions/chat-handler/telemetry.ts)
 - Each chat turn is wrapped in a `cre.chat.turn` span via `withSessionSpan`
 
+### Evals — agent behavior, not just code
+
+Unit tests cover the tool callbacks and IRR math. Those won't catch a
+prompt change that makes the agent stop calling `calculate_irr`, or a
+model bump that breaks tool-use behavior. An eval harness in
+[`tests/evals/`](tests/evals/) runs canned scenarios against the real
+Strands → Bedrock loop and asserts the agent invoked the right tools
+and emitted the expected substrings in its final response:
+
+```sh
+npm run test:evals
+```
+
+Each scenario in `tests/evals/scenarios.ts` declares its user turns and
+the tool/response assertions; the runner ([`run-evals.ts`](tests/evals/run-evals.ts))
+captures every tool call via the same `BeforeToolCallEvent` hook the
+audit log uses. Costs a few cents per run; CI workflow at
+`.github/workflows/evals.yml` is gated on a `RUN_EVALS` GitHub variable
+and an OIDC role so it doesn't fire on every PR.
+
 ## Status
 
 Working end-to-end. The IRR math is verified against a golden values
@@ -209,7 +229,8 @@ Active follow-ups (see [`BACKLOG.md`](BACKLOG.md) for the full list):
 
 - DynamoDB-backed session persistence (currently in-Lambda `Map`)
 - Auth on the Function URL (today `authType: NONE` for the demo)
-- An evals harness — last item on the observability/quality track
+- Multi-deal comparison (persist completed deals; cross-deal questions)
+
 
 ## License
 

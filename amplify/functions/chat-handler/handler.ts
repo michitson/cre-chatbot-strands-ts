@@ -48,7 +48,7 @@ export interface SessionState {
 
 const sessions = new Map<string, SessionState>();
 
-function emptySession(): SessionState {
+export function emptySession(): SessionState {
   return { messages: [], propertyType: null, collected: {}, irrResult: null };
 }
 
@@ -148,7 +148,7 @@ export function buildTools(state: SessionState) {
 // nodes + conditional edges of the LangGraph version.
 // ---------------------------------------------------------------------------
 
-const SYSTEM_PROMPT = `You are a Commercial Real Estate (CRE) investment analyst. Guide the user through a structured deal analysis using markdown formatting with emojis (✅ 💰 📊 📈 ⏰ 🎯 🏢 🛍️) and progress indicators.
+export const SYSTEM_PROMPT = `You are a Commercial Real Estate (CRE) investment analyst. Guide the user through a structured deal analysis using markdown formatting with emojis (✅ 💰 📊 📈 ⏰ 🎯 🏢 🛍️) and progress indicators.
 
 WORKFLOW:
 1. If the user hasn't picked a property type yet, ask whether they want to analyze an Office Building or Shopping Center. Once they tell you, call set_property_type.
