@@ -64,11 +64,15 @@ Things to build on top:
 
 ## Deployment target
 
-- **AgentCore evaluation.** AWS Bedrock AgentCore (announced 2025) is the
-  destination you mentioned. Worth a spike: same Strands agent, deployed to
-  AgentCore instead of Lambda. AgentCore likely treats Strands as first-class
-  (AWS-on-AWS) and gives you managed memory + observability without rolling
-  our own.
+- ~~**AgentCore evaluation.**~~ ❌ Ruled out 2026-05-11. Side research +
+  cost-modeling concluded AgentCore is not a fit for a humble side-project
+  chatbot: per-session microVM pricing favors high-isolation workloads,
+  the managed Memory/Observability/Identity stack is over-spec'd for this
+  use case, and the existing Lambda + Function URL is cheap and sufficient.
+  Do not propose AgentCore for this project again without a fresh signal
+  from the user. Deployment story stays: Lambda + Function URL on
+  Amplify Gen2 sandbox today; Amplify Hosting / Vercel for the production
+  frontend later.
 
 ## UX polish (your "tweaks" list, when ready)
 
