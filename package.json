@@ -1,7 +1,7 @@
 {
   "name": "cre-chatbot-amplify",
   "version": "1.0.0",
-  "description": "Commercial Real Estate investment-analysis chatbot. TypeScript rebuild of an earlier Python/Flask + LangChain + LangGraph prototype (2025).",
+  "description": "Commercial Real Estate investment-analysis agent built on the Strands Agents TypeScript SDK, AWS Bedrock (Claude), and Amplify Gen2. Newton-Raphson IRR, tornado sensitivity analysis, typed tools.",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -13,9 +13,23 @@
     "typecheck": "tsc --noEmit",
     "sandbox": "ampx sandbox"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "strands-agents",
+    "ai-agents",
+    "aws-bedrock",
+    "amplify-gen2",
+    "typescript",
+    "nextjs",
+    "commercial-real-estate",
+    "irr",
+    "claude"
+  ],
+  "author": "Andrew Michitson <michitson@yahoo.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michitson/cre-chatbot-strands-ts.git"
+  },
   "type": "module",
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",

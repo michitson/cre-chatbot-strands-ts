@@ -19,7 +19,7 @@ layers.
 | **IAM role** | Inside that stack | Lambda execution role with `bedrock:InvokeModel` | Lifetime of the Lambda |
 | **Bedrock** | AWS-managed, regional | Claude Sonnet 4 model access in `us-west-2` | Always-on AWS service; you opted in once via Bedrock Console |
 | **Session state** | Inside the warm Lambda container | `Map<sessionId, SessionState>` in process memory | Lost on cold start or container cycle |
-| **Reference Python + frontend export** | Your laptop only, in `reference-python/` and `reference-frontend/` | Static files | Frozen — not executed, never deployed |
+| **Historical handoff doc** | Your laptop only, in `docs/archive/handoff-2026-05-10.md` | Static markdown | Preserved for context; describes the pre-pivot LangGraph.js plan, not the current shape |
 
 ### Picture
 

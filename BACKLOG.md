@@ -84,8 +84,19 @@ Things to build on top:
 
 ## Hygiene
 
-- Initial git commit hasn't happened since the Strands pivot. Should commit
-  the post-pivot state cleanly (single coherent commit, not 1 per file).
-- README mentions Phase 4 IRR is now done; minor wording update.
-- `reference-frontend/` could be deleted now that we've folded it in — git
-  history preserves it. (Or keep as a "before" snapshot.)
+- ~~Initial git commit hasn't happened since the Strands pivot.~~ ✅ Shipped —
+  post-pivot commits exist on `main`.
+- ~~README mentions Phase 4 IRR is now done; minor wording update.~~ ✅ Shipped
+  2026-05-11 — README rewritten for the portfolio pivot.
+- ~~`reference-frontend/` could be deleted now that we've folded it in.~~ ✅ Shipped
+  2026-05-11 — both `reference-frontend/` and `reference-python/` removed
+  from the repo (a copy of `reference-python/` lives at
+  `/Users/andrew/code-post-aws/reference-archive/` for local context; git
+  history preserves the originals).
+- ~~`HANDOFF.md` is the pre-pivot LangGraph plan and is now misleading.~~ ✅
+  Shipped 2026-05-11 — moved to `docs/archive/handoff-2026-05-10.md` with
+  a "historical" preamble.
+- **Push to public GitHub.** The repo lives locally only today. Target:
+  `github.com/michitson/cre-chatbot-strands-ts` (or similar), with topics,
+  description, and the social preview image set. Part of the
+  portfolio-pivot Phase 2 work.
