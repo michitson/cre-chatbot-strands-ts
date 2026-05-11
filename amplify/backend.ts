@@ -1,4 +1,5 @@
 import { defineBackend } from '@aws-amplify/backend';
+import { Aws } from 'aws-cdk-lib';
 import {
   Function as LambdaFunction,
   FunctionUrlAuthType,
@@ -40,11 +41,14 @@ chatLambda.addToRolePolicy(
 //
 // Layer ARN reference:
 //   https://aws-otel.github.io/docs/getting-started/lambda/lambda-js
-// Bump the version suffix when AWS publishes a newer layer.
+// The layer is published in every standard AWS region under the same
+// account (901920570463) with a region-scoped ARN — using `Aws.REGION`
+// keeps this working whether the deploy lands in us-west-2, eu-west-1,
+// or anywhere else. Bump the version suffix when AWS publishes a newer
+// layer.
 // ---------------------------------------------------------------------------
 
-const ADOT_LAYER_ARN =
-  'arn:aws:lambda:us-west-2:901920570463:layer:aws-otel-nodejs-amd64-ver-1-30-2:1';
+const ADOT_LAYER_ARN = `arn:aws:lambda:${Aws.REGION}:901920570463:layer:aws-otel-nodejs-amd64-ver-1-30-2:1`;
 
 chatLambda.addLayers(
   LayerVersion.fromLayerVersionArn(chatLambda, 'AdotLayer', ADOT_LAYER_ARN),
