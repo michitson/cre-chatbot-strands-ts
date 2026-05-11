@@ -5,6 +5,7 @@ import type { Message } from '@strands-agents/sdk';
 import { z } from 'zod';
 import { calculateIrr, type IrrResult } from './irr.js';
 import { runSensitivity } from './sensitivity.js';
+import { BEDROCK_MODEL_ID } from './config.js';
 
 // ---------------------------------------------------------------------------
 // Domain types — same shape the LangGraph version had, minus the channel
@@ -187,12 +188,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const agent = new Agent({
+      model: BEDROCK_MODEL_ID,
       systemPrompt: SYSTEM_PROMPT,
       tools: buildTools(state),
       messages: state.messages,
       printer: false,
-      // Defaults to Bedrock Claude Sonnet via process.env.AWS_REGION.
-      // Phase 4: pin a specific model ID via `model: 'anthropic.claude-...'`.
     });
 
     const result = await agent.invoke(message);

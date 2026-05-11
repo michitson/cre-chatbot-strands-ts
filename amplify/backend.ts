@@ -2,6 +2,7 @@ import { defineBackend } from '@aws-amplify/backend';
 import { FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { chatHandler } from './functions/chat-handler/resource';
+import { BEDROCK_MODEL_ID } from './functions/chat-handler/config';
 
 const backend = defineBackend({
   chatHandler,
@@ -31,5 +32,6 @@ const chatUrl = backend.chatHandler.resources.lambda.addFunctionUrl({
 backend.addOutput({
   custom: {
     chatHandlerUrl: chatUrl.url,
+    bedrockModelId: BEDROCK_MODEL_ID,
   },
 });
