@@ -50,6 +50,7 @@
   "dependencies": {
     "@aws-amplify/backend": "^1.22.0",
     "@aws-amplify/backend-cli": "^1.8.2",
+    "@aws-amplify/ui-react": "^6.15.3",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.214.0",
@@ -59,7 +60,9 @@
     "@opentelemetry/sdk-trace-base": "^2.7.1",
     "@opentelemetry/sdk-trace-node": "^2.7.1",
     "@strands-agents/sdk": "^1.1.0",
+    "aws-amplify": "^6.17.0",
     "aws-cdk-lib": "^2.253.1",
+    "aws-jwt-verify": "^5.1.1",
     "constructs": "^10.6.0",
     "next": "^16.2.6",
     "react": "^19.2.6",

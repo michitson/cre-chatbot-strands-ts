@@ -36,6 +36,23 @@ jobs:
           cat > amplify_outputs.json <<'EOF'
           {
             "version": "1.4",
+            "auth": {
+              "user_pool_id": "us-west-2_placeholder",
+              "user_pool_client_id": "placeholder",
+              "aws_region": "us-west-2",
+              "identity_pool_id": "us-west-2:00000000-0000-0000-0000-000000000000",
+              "username_attributes": ["email"],
+              "standard_required_attributes": ["email"],
+              "user_verification_types": ["email"],
+              "unauthenticated_identities_enabled": false,
+              "password_policy": {
+                "min_length": 8,
+                "require_lowercase": true,
+                "require_numbers": true,
+                "require_symbols": false,
+                "require_uppercase": true
+              }
+            },
             "custom": {
               "chatHandlerUrl": "https://placeholder.invalid/",
               "bedrockModelId": "global.anthropic.claude-sonnet-4-6"

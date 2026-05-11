@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import '@aws-amplify/ui-react/styles.css';
+import ConfigureAmplify from './ConfigureAmplify';
 
 export const metadata: Metadata = {
   title: 'CRE Chatbot',
@@ -11,7 +13,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ConfigureAmplify />
+        {children}
+      </body>
     </html>
   );
 }

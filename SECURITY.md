@@ -7,16 +7,20 @@ vs. an oversight.
 
 ## Known deferred work
 
-- **Lambda Function URL is `authType: NONE`.** Anyone who knows the URL
-  can POST to it. This is intentional for a free side-project demo —
-  it keeps `curl`-based examples one-liners and frees the frontend
-  from needing IAM signing or Cognito. For a real deployment, switch
-  to one of: API key check in the handler, IAM-signed requests via
-  AWS SDK from the frontend, Cognito JWT verification, or move
-  behind API Gateway with an authorizer. Tracked in
-  [`BACKLOG.md`](BACKLOG.md) under Productionization.
-- **CORS is `*` on the Function URL.** Same rationale — local dev and
-  any future hosted preview both work without origin gymnastics.
+- **Auth is enforced inside the Lambda, not at the Function URL.** The
+  Function URL itself is `authType: NONE` so the handler can return
+  proper 401/403 bodies and serve CORS preflights, but every real
+  request must carry `Authorization: Bearer <idToken>` — a Cognito
+  User Pool id-token. The Lambda validates the JWT against the
+  Pool's JWKS on every invocation (see
+  [`amplify/functions/chat-handler/auth.ts`](amplify/functions/chat-handler/auth.ts)).
+  Self-service sign-up is on (Amplify Gen2 default), so a reviewer
+  can create an account from the Authenticator UI without bothering
+  anyone for credentials.
+- **CORS is `*` on the Function URL.** Even without auth on the URL
+  layer, no useful action happens before the JWT check; CORS `*`
+  just keeps local dev and hosted previews both working without
+  origin gymnastics.
 - **Session state lives in a per-Lambda-container `Map`.** Cold starts
   drop conversations. Not a security boundary (sessions are scoped by
   client-supplied sessionId; a guessing attacker has random UUIDs to

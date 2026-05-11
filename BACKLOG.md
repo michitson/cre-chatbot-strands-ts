@@ -15,10 +15,14 @@ Parking lot for ideas we've discussed but haven't built. Roughly ordered by
   profile, works from us-west-2) in
   `amplify/functions/chat-handler/config.ts`. Surfaced via
   `amplify_outputs.json.custom.bedrockModelId`.
-- **Auth on the Function URL.** Today it's `authType: NONE` and the URL is
-  shareable. Options: API key, Cognito JWT, or IAM-signed (requires a tiny
-  signing layer in the frontend). For a side project that's fine; for any
-  public deploy, not.
+- ~~**Auth on the Function URL.**~~ ✅ Shipped 2026-05-11 — Amplify
+  Gen2 `defineAuth` (Cognito User Pool, email login + self-service
+  sign-up). Frontend wraps the app in `<Authenticator>` and forwards
+  the User Pool `idToken` as `Authorization: Bearer …`; the Lambda
+  validates the JWT against the Pool's JWKS via `aws-jwt-verify`
+  before any agent work. Function URL itself stays `authType: NONE`
+  so the handler can serve CORS preflights and craft proper 401/403
+  bodies.
 - **Production frontend deploy.** `next build` works; need to wire Amplify
   Hosting (or Vercel) so the Next.js app is reachable from somewhere other than
   `localhost:3000`. Will also need `NEXT_PUBLIC_CHAT_URL` injection at build

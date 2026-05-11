@@ -9,16 +9,27 @@ import {
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { chatHandler } from './functions/chat-handler/resource';
 import { BEDROCK_MODEL_ID } from './functions/chat-handler/config';
+import { auth } from './auth/resource';
 
 const backend = defineBackend({
+  auth,
   chatHandler,
 });
+
+// Pass the User Pool ID + Client ID into the Lambda so the handler can
+// validate incoming JWTs against the right pool (without round-tripping
+// to Cognito on every cold start).
+const userPool = backend.auth.resources.userPool;
+const userPoolClient = backend.auth.resources.userPoolClient;
 
 // Amplify types `resources.lambda` as `IFunction` (interface). The
 // underlying construct is the concrete `Function` (with `addLayers`,
 // `addEnvironment`, etc.) — cast once and reuse.
 const chatLambda = backend.chatHandler.resources.lambda as LambdaFunction;
 const chatLambdaCfn = backend.chatHandler.resources.cfnResources.cfnFunction;
+
+chatLambda.addEnvironment('COGNITO_USER_POOL_ID', userPool.userPoolId);
+chatLambda.addEnvironment('COGNITO_USER_POOL_CLIENT_ID', userPoolClient.userPoolClientId);
 
 // Strands invokes Bedrock at runtime; grant the Lambda permission.
 chatLambda.addToRolePolicy(
@@ -70,12 +81,15 @@ chatLambdaCfn.tracingConfig = { mode: 'Active' };
 
 // Expose the chat Lambda directly via a Function URL. Switching to API
 // Gateway with a custom domain is deferred (see BACKLOG.md).
+// Function URL stays `authType: NONE` so the Lambda itself can return
+// proper 401/403 bodies and handle CORS preflights; auth is enforced
+// inside the handler against the Cognito JWT (see auth.ts).
 const chatUrl = chatLambda.addFunctionUrl({
   authType: FunctionUrlAuthType.NONE,
   cors: {
     allowedOrigins: ['*'],
     allowedMethods: [HttpMethod.POST],
-    allowedHeaders: ['Content-Type'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   },
 });
 

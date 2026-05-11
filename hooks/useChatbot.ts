@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import amplifyOutputs from '@/amplify_outputs.json';
 
 const CHAT_URL = (amplifyOutputs as { custom?: { chatHandlerUrl?: string } })
@@ -52,9 +53,21 @@ export default function useChatbot() {
     setIsLoading(true);
 
     try {
+      // Pull the current Cognito session's idToken. The Authenticator
+      // wrapper guarantees there's a signed-in user by the time this
+      // hook is reachable, but fetchAuthSession can still fail (e.g.
+      // expired refresh token after the tab sleeps overnight) — let it
+      // bubble up as an HTTP-shaped error message.
+      const session = await fetchAuthSession();
+      const idToken = session.tokens?.idToken?.toString();
+      if (!idToken) throw new Error('not signed in');
+
       const res = await fetch(CHAT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({ message: text, sessionId: sessionId ?? undefined }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

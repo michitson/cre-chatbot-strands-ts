@@ -50,6 +50,7 @@ and the git history).
 | Agent SDK    | **Strands Agents — TypeScript** (`1.0.0-rc.x`)    | New (preview Dec 2025); model-driven loop with typed tools; clean fit for "model is the orchestrator"     |
 | Model        | AWS Bedrock — Claude Sonnet 4.6 (`global.anthropic.claude-sonnet-4-6`) | Strong tool-use behavior, 1M context. Pinned via global cross-region inference profile — no silent drift on SDK upgrades |
 | Backend      | AWS Lambda + Function URL                         | Cheap, simple, scales to zero. Agent loop runs entirely inside one Lambda invocation per chat turn        |
+| Auth         | Amplify Gen2 `defineAuth` (Cognito User Pool)     | Email/password sign-up; frontend forwards the User Pool `idToken` as `Authorization: Bearer …`; Lambda validates it against the User Pool's JWKS |
 | IaC          | AWS Amplify Gen2                                  | TypeScript-native infra (`backend.ts`); sandbox watcher redeploys on save                                 |
 | Frontend     | Next.js 16 (app router) + Tailwind v4 + React 19  | Streaming-friendly, modern app router, tight feedback loop                                                |
 | Tests        | Vitest                                            | Fast unit tests on the tool callbacks (no LLM); opt-in live smoke tests against the deployed Lambda       |
@@ -228,7 +229,6 @@ five numeric inputs at once and reports a tornado-ranked spread.
 Active follow-ups (see [`BACKLOG.md`](BACKLOG.md) for the full list):
 
 - DynamoDB-backed session persistence (currently in-Lambda `Map`)
-- Auth on the Function URL (today `authType: NONE` for the demo)
 - Multi-deal comparison (persist completed deals; cross-deal questions)
 
 

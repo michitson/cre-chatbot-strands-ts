@@ -8,6 +8,7 @@ import { runSensitivity } from './sensitivity.js';
 import { BEDROCK_MODEL_ID } from './config.js';
 import { registerAuditLog } from './hooks/audit-log.js';
 import { withSessionSpan } from './telemetry.js';
+import { verifyRequest } from './auth.js';
 
 // ---------------------------------------------------------------------------
 // Domain types — same shape the LangGraph version had, minus the channel
@@ -174,8 +175,29 @@ Be conversational and concise. Don't dump raw tool results — synthesize them i
 // Lambda handler
 // ---------------------------------------------------------------------------
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
+    // Verify the Cognito JWT before doing any work. The Function URL
+    // itself is `authType: NONE` (so we can serve CORS preflights and
+    // craft proper 401/403 bodies), but every real call has to carry
+    // `Authorization: Bearer <idToken>`.
+    const auth = await verifyRequest(
+      event.headers as Record<string, string | undefined>,
+    );
+    if (!auth.ok) {
+      return {
+        statusCode: auth.status,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+        body: JSON.stringify({ error: 'unauthorized', detail: auth.reason }),
+      };
+    }
+
     const body = event.body ? JSON.parse(event.body) : {};
     const { message = '', sessionId: clientSessionId } = body as {
       message?: string;
@@ -210,7 +232,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
       body: JSON.stringify({
         response: typeof result === 'string' ? result : String(result),
         sessionId,
@@ -224,7 +246,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     console.error('chat-handler error:', err);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
       body: JSON.stringify({ error: 'An error occurred', detail: message }),
     };
   }
