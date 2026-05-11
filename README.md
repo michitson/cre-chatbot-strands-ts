@@ -232,6 +232,13 @@ Active follow-ups (see [`BACKLOG.md`](BACKLOG.md) for the full list):
 - Multi-deal comparison (persist completed deals; cross-deal questions)
 
 
+## Security
+
+This is a demo / portfolio project. The Lambda Function URL is
+intentionally `authType: NONE`, CORS is `*`, and sessions live in
+process memory. See [SECURITY.md](SECURITY.md) for the full list of
+"known demo-mode tradeoffs" and what production shape would look like.
+
 ## License
 
 [MIT](LICENSE).

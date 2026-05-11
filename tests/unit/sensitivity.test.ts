@@ -13,8 +13,8 @@ const STANDARD = {
   exitCapRate: 6.5,
 };
 
-// "Downtown Office Tower" from the user's earlier session — strong cap rate
-// compression case, used to verify exit cap rate dominates the tornado.
+// "Downtown Office Tower" — strong cap-rate-compression case. Used to verify
+// exit cap rate dominates the tornado once we sweep rates in bp (not %).
 const FUNKY = {
   purchasePrice: 10_000_000,
   netOperatingIncome: 1_200_000,
@@ -31,25 +31,53 @@ describe('runSensitivity — shape and consistency', () => {
     expect(names).toEqual([...SENSITIVITY_VARIABLES].sort());
   });
 
-  it('each variable has 5 points at multipliers 0.8…1.2', () => {
+  it('each variable has 5 sweep points', () => {
     const r = runSensitivity(STANDARD);
     for (const v of r.variables) {
       expect(v.points.length).toBe(5);
-      expect(v.points.map((p) => p.multiplier)).toEqual([0.8, 0.9, 1.0, 1.1, 1.2]);
     }
   });
 
-  it('the multiplier=1.0 point matches the base IRR (per variable)', () => {
+  it('rate variables sweep in bp, dollar/period variables sweep multiplicatively', () => {
     const r = runSensitivity(STANDARD);
     for (const v of r.variables) {
-      const basePoint = v.points.find((p) => p.multiplier === 1.0)!;
+      if (v.name === 'noiGrowthRate' || v.name === 'exitCapRate') {
+        expect(v.mode).toBe('basis-points');
+        expect(v.points.map((p) => p.moveLabel)).toEqual([
+          '-100bp',
+          '-50bp',
+          'base',
+          '+50bp',
+          '+100bp',
+        ]);
+      } else {
+        expect(v.mode).toBe('multiplicative');
+        expect(v.points.map((p) => p.moveLabel)).toEqual([
+          '-20%',
+          '-10%',
+          'base',
+          '+10%',
+          '+20%',
+        ]);
+      }
+    }
+  });
+
+  it('the "base" point matches the base IRR (per variable)', () => {
+    const r = runSensitivity(STANDARD);
+    for (const v of r.variables) {
+      const basePoint = v.points.find((p) => p.moveLabel === 'base')!;
+      expect(basePoint).toBeDefined();
       expect(basePoint.irrPercentage).toBeCloseTo(r.baseIrrPercentage, 6);
     }
   });
 
   it('baseIrrPercentage matches calculateIrr directly', () => {
     const r = runSensitivity(STANDARD);
-    expect(r.baseIrrPercentage).toBeCloseTo(calculateIrr(STANDARD).irrPercentage, 6);
+    expect(r.baseIrrPercentage).toBeCloseTo(
+      calculateIrr(STANDARD).irrPercentage,
+      6,
+    );
   });
 
   it('variables are sorted by spread descending', () => {
@@ -69,20 +97,25 @@ describe('runSensitivity — shape and consistency', () => {
       expect(p.value).toBeGreaterThanOrEqual(1);
     }
   });
+
+  it('exitCapRate bp sweep produces 5.5, 6.0, 6.5, 7.0, 7.5', () => {
+    const r = runSensitivity(STANDARD);
+    const e = r.variables.find((v) => v.name === 'exitCapRate')!;
+    expect(e.points.map((p) => p.value)).toEqual([5.5, 6.0, 6.5, 7.0, 7.5]);
+  });
 });
 
 describe('runSensitivity — economic sanity', () => {
-  it('lower purchase price → higher IRR (monotonic on purchasePrice)', () => {
+  it('higher purchase price → lower IRR (monotonic)', () => {
     const r = runSensitivity(STANDARD);
     const p = r.variables.find((v) => v.name === 'purchasePrice')!;
     const irrs = p.points.map((pt) => pt.irrPercentage);
-    // Multipliers are sorted ascending; as price rises, IRR should fall.
     for (let i = 0; i < irrs.length - 1; i++) {
       expect(irrs[i]).toBeGreaterThan(irrs[i + 1]);
     }
   });
 
-  it('lower exit cap rate → higher IRR (cap rate compression wins)', () => {
+  it('higher exit cap rate → lower IRR (cap-rate compression)', () => {
     const r = runSensitivity(STANDARD);
     const e = r.variables.find((v) => v.name === 'exitCapRate')!;
     const irrs = e.points.map((pt) => pt.irrPercentage);
@@ -91,14 +124,17 @@ describe('runSensitivity — economic sanity', () => {
     }
   });
 
-  it('top tornado variable for a strong deal has meaningful IRR sensitivity', () => {
-    // Note: with a multiplicative ±20% sweep, dollar-amount variables
-    // (purchasePrice, netOperatingIncome) tend to dominate over rate
-    // variables (cap rates, growth) because $2M swings beat 1pp swings.
-    // That's a known limitation of this kind of sensitivity — practitioners
-    // typically prefer bp-move sweeps for rates, see BACKLOG.md.
+  it('bp sweep gives rate variables a meaningful IRR spread (not vanishing)', () => {
+    // With the previous ±20% multiplicative sweep, a 20% move on a 6.5%
+    // exit cap was 5.2%↔7.8% — close to a ±100bp move but framed in a
+    // way practitioners don't think in. Now we sweep ±100bp directly
+    // (5.5%↔7.5% for FUNKY's 5% base → 4%↔6%), giving rates a fair
+    // shake on the tornado. Dollar variables can still dominate when
+    // their natural ±20% swings are larger; that's a feature, not a bug.
     const r = runSensitivity(FUNKY);
-    expect(['purchasePrice', 'netOperatingIncome']).toContain(r.variables[0].name);
-    expect(r.variables[0].spreadPp).toBeGreaterThan(6);
+    const exitCap = r.variables.find((v) => v.name === 'exitCapRate')!;
+    const growth = r.variables.find((v) => v.name === 'noiGrowthRate')!;
+    expect(exitCap.spreadPp).toBeGreaterThan(2);
+    expect(growth.spreadPp).toBeGreaterThan(1);
   });
 });

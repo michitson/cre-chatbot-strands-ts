@@ -59,12 +59,13 @@ Things to build on top:
 ## Agent capability
 
 - ~~**Sensitivity analysis tool.**~~ ✅ Shipped — `run_sensitivity` tool with
-  tornado-style output (sweeps all 5 numeric inputs ±20%, ranks by IRR spread).
-  Improves on the Python reference by doing all variables at once.
-  Follow-up: replace ±20% multiplicative sweep with bp-move sweeps for the
-  rate variables (`noiGrowthRate`, `exitCapRate`) — practitioners think in
-  bp, not in percentages of percentages. Mixed-mode sweep would be more
-  honest for cap rate compression analyses.
+  tornado-style output, ranking variables by IRR spread.
+  ~~Follow-up: bp-move sweeps for rate variables.~~ ✅ Shipped
+  2026-05-11 — mixed-mode sweep: dollar/period variables move ±20%
+  multiplicatively; rate variables (`noiGrowthRate`, `exitCapRate`) move
+  ±100bp additively, the way CRE practitioners actually think. Each
+  point now carries a `moveLabel` ("-100bp" / "+20%") and a `mode` flag.
+  System prompt + tool description updated to match.
 - **Multi-deal comparison.** Persist completed deals (the lost
   `CompletedDealDB` from the 2025 prototype) and let the agent answer "how
   does this compare to the deals I've analyzed before?"

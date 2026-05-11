@@ -128,7 +128,7 @@ export function buildTools(state: SessionState) {
   const runSensitivityTool = tool({
     name: 'run_sensitivity',
     description:
-      'Run a tornado-style sensitivity analysis on the deal. Sweeps each of the 5 numeric inputs by ±20% and recomputes IRR. Returns variables ranked by IRR spread (largest first). Call this after calculate_irr has succeeded and the user wants to know which assumption their return is most sensitive to. Note: ±20% multiplicative sweeps favor dollar-amount variables; mention this caveat when presenting.',
+      'Run a tornado-style sensitivity analysis on the deal. Mixed-mode sweep: dollar/period variables (purchasePrice, netOperatingIncome, holdPeriod) move ±20% multiplicatively; rate variables (noiGrowthRate, exitCapRate) move ±100bp additively, which is how CRE practitioners actually think about cap-rate compression. Returns variables ranked by IRR spread (largest first). Each point carries a moveLabel like "-100bp" or "+20%" and the resulting IRR. Call after calculate_irr has succeeded and the user wants to know which assumption their return is most sensitive to.',
     inputSchema: z.object({}),
     callback: () => {
       const parsed = DealDataSchema.safeParse(state.collected);
@@ -166,7 +166,7 @@ WORKFLOW:
 4. After each record_field call, confirm the value back to the user with the field name in bold and show progress like "**Progress**: 3/6 fields completed".
 5. Optionally collect city.
 6. When all 6 required fields are recorded, call calculate_irr and present the result with: ## 📊 IRR Analysis Results header, the IRR percentage, total return, annual cash flow, exit value, and a one-line performance verdict (≥15% Excellent 🟢, ≥12% Good 🟡, ≥8% Moderate 🟠, else Below Market 🔴). Then offer next steps including "Run sensitivity analysis" alongside new deal / adjust / exit.
-7. If the user asks about sensitivity, "what-if", "what's most sensitive", "tornado", or wants to understand which assumption matters most: call run_sensitivity. Present the result as a compact markdown table with one row per variable sorted by spread (already pre-sorted), showing variable name, base value, and IRR spread (in percentage points). Briefly explain the top 1-2 dominant variables in plain English. Caveat that ±20% multiplicative sweeps tend to favor dollar-amount variables over rate variables — for rates, practitioners often think in basis-point moves, which this sweep doesn't model.
+7. If the user asks about sensitivity, "what-if", "what's most sensitive", "tornado", or wants to understand which assumption matters most: call run_sensitivity. Present the result as a compact markdown table with one row per variable sorted by spread (already pre-sorted), showing variable name, base value, mode (multiplicative vs basis-points), and IRR spread (in percentage points). Briefly explain the top 1-2 dominant variables in plain English. Mention that rate variables (noiGrowthRate, exitCapRate) sweep in basis points (±100bp) while dollar/period variables sweep multiplicatively (±20%) — that's the practitioner-standard way to compare them.
 
 Be conversational and concise. Don't dump raw tool results — synthesize them into a friendly response.`;
 
