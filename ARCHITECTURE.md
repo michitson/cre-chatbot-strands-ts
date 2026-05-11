@@ -13,9 +13,9 @@ layers.
 | **Browser UI** | Your laptop, in Chrome/Safari | Tab pointed at `http://localhost:3000` | Per browser tab |
 | **Next.js dev server** | Your laptop | `next dev` (Node process) | While `npm run dev` is running |
 | **Sandbox watcher** | Your laptop | `npx ampx sandbox` (Node process) | While the watcher is running; auto-redeploys on `amplify/**` save |
-| **CloudFormation stack** | AWS, `us-west-2`, account `571029153751` | `amplify-crechatbotamplify-andrew-sandbox-f16dfe9486` | Until you `npx ampx sandbox delete` |
+| **CloudFormation stack** | AWS, `us-west-2`, your account | `amplify-crechatbotamplify-<user>-sandbox-<hash>` | Until you `npx ampx sandbox delete` |
 | **Chat Lambda** | Inside that stack | `chat-handler-lambda` (Node.js 20) | Cold-starts on demand; warm container lives ~5 min idle |
-| **Function URL** | Inside that stack | `https://mixz6...lambda-url.us-west-2.on.aws/` | Lifetime of the Lambda |
+| **Function URL** | Inside that stack | `https://<hash>.lambda-url.us-west-2.on.aws/` (regenerated per stack) | Lifetime of the Lambda |
 | **IAM role** | Inside that stack | Lambda execution role with `bedrock:InvokeModel` | Lifetime of the Lambda |
 | **Bedrock** | AWS-managed, regional | Claude Sonnet 4 model access in `us-west-2` | Always-on AWS service; you opted in once via Bedrock Console |
 | **Session state** | Inside the warm Lambda container | `Map<sessionId, SessionState>` in process memory | Lost on cold start or container cycle |
@@ -34,7 +34,7 @@ flowchart LR
     watcher -. watches .-> code
   end
 
-  subgraph aws["AWS account 571029153751 — us-west-2"]
+  subgraph aws["Your AWS account — us-west-2"]
     direction TB
     cf["CloudFormation stack<br/>amplify-crechatbotamplify-andrew-sandbox-f16dfe9486"]
     fnurl["Lambda Function URL<br/>(authType: NONE, CORS *)"]
