@@ -166,6 +166,39 @@ sanity-checks them; the full reconstruction-and-rerun pattern (combine
 upstream `record_field` records into a deal, re-run `calculateIrr`
 locally, assert outputs match) is the next iteration.
 
+### Distributed traces (X-Ray)
+
+Strands ships an OpenTelemetry tracer that emits spans for `agent.invoke`,
+each model call, and each tool call. The Lambda runs with the **AWS Distro
+for OpenTelemetry (ADOT) Lambda Layer** attached
+([`amplify/backend.ts`](amplify/backend.ts)), which runs an in-process
+OTLP collector that translates spans to **AWS X-Ray** segments. The
+result is a real waterfall in the X-Ray service map: one root
+`cre.chat.turn` span (tagged with `cre.session_id`) and child spans for
+every Bedrock invocation + every tool call in that turn.
+
+```
+cre.chat.turn (sessionId=f3a1-…)
+├── agent.invoke
+│   ├── model.call (Bedrock — Claude Sonnet 4.6)
+│   ├── tool.call (record_field)
+│   ├── tool.call (record_field)
+│   ├── model.call
+│   ├── tool.call (calculate_irr)
+│   └── model.call
+```
+
+Setup:
+- ADOT layer ARN + `AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler` env var
+  attached to the Lambda
+- Active X-Ray tracing on the Lambda (`tracingConfig.mode = Active`)
+- `xray:PutTraceSegments` + `xray:PutTelemetryRecords` IAM permissions
+  on the Lambda role
+- `setupTracer({ exporters: { otlp: true } })` called once at module
+  init in
+  [`amplify/functions/chat-handler/telemetry.ts`](amplify/functions/chat-handler/telemetry.ts)
+- Each chat turn is wrapped in a `cre.chat.turn` span via `withSessionSpan`
+
 ## Status
 
 Working end-to-end. The IRR math is verified against a golden values
@@ -176,8 +209,7 @@ Active follow-ups (see [`BACKLOG.md`](BACKLOG.md) for the full list):
 
 - DynamoDB-backed session persistence (currently in-Lambda `Map`)
 - Auth on the Function URL (today `authType: NONE` for the demo)
-- OpenTelemetry traces (X-Ray) and an evals harness — the rest of the
-  observability/quality track
+- An evals harness — last item on the observability/quality track
 
 ## License
 

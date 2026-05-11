@@ -7,6 +7,7 @@ import { calculateIrr, type IrrResult } from './irr.js';
 import { runSensitivity } from './sensitivity.js';
 import { BEDROCK_MODEL_ID } from './config.js';
 import { registerAuditLog } from './hooks/audit-log.js';
+import { withSessionSpan } from './telemetry.js';
 
 // ---------------------------------------------------------------------------
 // Domain types — same shape the LangGraph version had, minus the channel
@@ -188,21 +189,24 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       sessions.set(sessionId, state);
     }
 
-    const agent = new Agent({
-      model: BEDROCK_MODEL_ID,
-      systemPrompt: SYSTEM_PROMPT,
-      tools: buildTools(state),
-      messages: state.messages,
-      printer: false,
+    const result = await withSessionSpan(sessionId, async () => {
+      const agent = new Agent({
+        model: BEDROCK_MODEL_ID,
+        systemPrompt: SYSTEM_PROMPT,
+        tools: buildTools(state),
+        messages: state.messages,
+        printer: false,
+      });
+
+      // Emit one structured JSON line per completed tool call to stdout
+      // (Lambda → CloudWatch Logs). See hooks/audit-log.ts for the schema
+      // and the matching Logs Insights query.
+      registerAuditLog(agent, sessionId);
+
+      const invokeResult = await agent.invoke(message);
+      state.messages = agent.messages;
+      return invokeResult;
     });
-
-    // Emit one structured JSON line per completed tool call to stdout
-    // (Lambda → CloudWatch Logs). See hooks/audit-log.ts for the schema
-    // and the matching Logs Insights query.
-    registerAuditLog(agent, sessionId);
-
-    const result = await agent.invoke(message);
-    state.messages = agent.messages;
 
     return {
       statusCode: 200,

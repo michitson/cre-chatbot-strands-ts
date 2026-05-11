@@ -41,9 +41,15 @@ Things to build on top:
 - **Replay verifier.** Standalone script: load a session's audit log, re-run
   `calculateIrr` on the captured inputs, assert outputs match what the agent
   reported. Catches arithmetic drift or tool-injection issues.
-- **OpenTelemetry export.** `telemetry/tracer.ts` and `telemetry/meter.ts` are
-  OTel-compatible. Plug into CloudWatch / Honeycomb / Datadog for spans per
-  invoke + per tool call + per model call, with sessionId as trace attribute.
+- ~~**OpenTelemetry export.**~~ ✅ Shipped 2026-05-11 — `setupTracer` in
+  `amplify/functions/chat-handler/telemetry.ts` wires Strands' built-in
+  OTLP exporter to the AWS Distro for OpenTelemetry (ADOT) Lambda Layer.
+  Layer + `AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler` + active tracing +
+  X-Ray IAM perms are all in `amplify/backend.ts`. Spans land in AWS
+  X-Ray with `cre.session_id` as the trace attribute on a `cre.chat.turn`
+  root span, with child spans for `agent.invoke`, each `model.call`, and
+  each `tool.call`. See README "Distributed traces (X-Ray)" for the
+  shape.
 - **Token / cost metrics.** Capture `usage` from `AfterModelCallEvent`, surface
   per-session token counts (input/output/cache) and dollar cost. Useful for
   both observability and a future "cost cap" feature.
