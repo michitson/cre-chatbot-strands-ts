@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { calculateIrr, type IrrResult } from './irr.js';
 import { runSensitivity } from './sensitivity.js';
 import { BEDROCK_MODEL_ID } from './config.js';
+import { registerAuditLog } from './hooks/audit-log.js';
 
 // ---------------------------------------------------------------------------
 // Domain types — same shape the LangGraph version had, minus the channel
@@ -194,6 +195,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       messages: state.messages,
       printer: false,
     });
+
+    // Emit one structured JSON line per completed tool call to stdout
+    // (Lambda → CloudWatch Logs). See hooks/audit-log.ts for the schema
+    // and the matching Logs Insights query.
+    registerAuditLog(agent, sessionId);
 
     const result = await agent.invoke(message);
     state.messages = agent.messages;

@@ -128,6 +128,44 @@ npm run typecheck
 npm run build
 ```
 
+## Observability
+
+Every tool the agent invokes is structured-logged so a non-deterministic
+LLM doesn't mean a non-inspectable system. The Lambda subscribes to
+Strands' `BeforeToolCallEvent` + `AfterToolCallEvent` hooks (see
+[`amplify/functions/chat-handler/hooks/audit-log.ts`](amplify/functions/chat-handler/hooks/audit-log.ts))
+and emits one JSON line per completed tool call to stdout, which Lambda
+ships to CloudWatch Logs as a single structured record:
+
+```json
+{
+  "event": "tool_call",
+  "ts": "2026-05-11T17:42:08.123Z",
+  "sessionId": "f3a1-…",
+  "toolName": "calculate_irr",
+  "toolUseId": "tooluse_abc…",
+  "status": "success",
+  "durationMs": 4,
+  "input": {},
+  "output": "{\"irrPercentage\":12.34,…}"
+}
+```
+
+CloudWatch Logs Insights query:
+
+```
+fields @timestamp, sessionId, toolName, durationMs, status
+| filter event = "tool_call"
+| sort @timestamp desc
+| limit 50
+```
+
+A replay verifier at [`scripts/replay-tool-calls.ts`](scripts/replay-tool-calls.ts)
+pulls a session's `calculate_irr` records out of CloudWatch and
+sanity-checks them; the full reconstruction-and-rerun pattern (combine
+upstream `record_field` records into a deal, re-run `calculateIrr`
+locally, assert outputs match) is the next iteration.
+
 ## Status
 
 Working end-to-end. The IRR math is verified against a golden values
@@ -138,8 +176,8 @@ Active follow-ups (see [`BACKLOG.md`](BACKLOG.md) for the full list):
 
 - DynamoDB-backed session persistence (currently in-Lambda `Map`)
 - Auth on the Function URL (today `authType: NONE` for the demo)
-- Tool-call audit log, OpenTelemetry traces, and a small evals harness
-  — the "observability + quality" track
+- OpenTelemetry traces (X-Ray) and an evals harness — the rest of the
+  observability/quality track
 
 ## License
 

@@ -29,9 +29,12 @@ Strands exposes a hook system (`BeforeInvocationEvent`, `MessageAddedEvent`,
 `AfterModelCallEvent`, `AgentResultEvent`, …) and OpenTelemetry tracer/meter.
 Things to build on top:
 
-- **Tool-call audit log.** Subscribe to `AfterToolCallEvent` and write
-  `{sessionId, timestamp, toolName, input, output}` to DynamoDB or S3. Becomes
-  the replayable trail for compliance/debug.
+- ~~**Tool-call audit log.**~~ ✅ Shipped 2026-05-11 — hooks into
+  `BeforeToolCallEvent` + `AfterToolCallEvent` emit a structured JSON
+  line per call to stdout (Lambda → CloudWatch Logs). Schema +
+  query example in README "Observability". Implementation:
+  `amplify/functions/chat-handler/hooks/audit-log.ts`. A replay
+  verifier sketch lives at `scripts/replay-tool-calls.ts`.
 - **Policy gate on tool calls.** Subscribe to `BeforeToolCallEvent` (it's
   `Interruptible`), check inputs against a rules engine, and `preventDefault`
   if the call violates policy. Pattern: model proposes, rules engine disposes.
