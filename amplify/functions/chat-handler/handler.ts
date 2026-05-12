@@ -175,25 +175,26 @@ Be conversational and concise. Don't dump raw tool results — synthesize them i
 // Lambda handler
 // ---------------------------------------------------------------------------
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// CORS is handled by the Function URL's own CORS config in backend.ts —
+// the handler intentionally emits NO Access-Control-* headers. AWS
+// Lambda Function URLs with `cors: { allowedOrigins: ['*'] }` echo the
+// request origin back as Access-Control-Allow-Origin; if the handler
+// also emits `*`, the browser sees two ACAO headers in the response and
+// rejects the whole thing with a CORS error.
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     // Verify the Cognito JWT before doing any work. The Function URL
-    // itself is `authType: NONE` (so we can serve CORS preflights and
-    // craft proper 401/403 bodies), but every real call has to carry
-    // `Authorization: Bearer <idToken>`.
+    // itself is `authType: NONE` so the handler can craft proper 401/403
+    // JSON bodies; every real call must carry `Authorization: Bearer
+    // <idToken>`.
     const auth = await verifyRequest(
       event.headers as Record<string, string | undefined>,
     );
     if (!auth.ok) {
       return {
         statusCode: auth.status,
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'unauthorized', detail: auth.reason }),
       };
     }
@@ -232,7 +233,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         response: typeof result === 'string' ? result : String(result),
         sessionId,
@@ -246,7 +247,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     console.error('chat-handler error:', err);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ error: 'An error occurred', detail: message }),
     };
   }
