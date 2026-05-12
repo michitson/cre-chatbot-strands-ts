@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/*
+ * @michitson/react-chat ships no CSS — it uses Tailwind classes
+ * (flex-1, max-w-3xl, border-slate-200, dark:bg-slate-900, …) in its
+ * className strings and expects the consuming app's Tailwind build to
+ * compile them. Tailwind v4 doesn't scan node_modules by default, so
+ * we point it at the package's dist to pick up every class the
+ * Chatbot renders. Without this, the chat renders as an unstyled
+ * input + button.
+ */
+@source "../node_modules/@michitson/react-chat/dist";
