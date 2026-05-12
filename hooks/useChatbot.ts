@@ -35,17 +35,25 @@ export default function useChatbot() {
   const [collectedFields, setCollectedFields] = useState<Record<string, unknown>>({});
   const [irrResult, setIrrResult] = useState<IrrResult | null>(null);
 
-  async function sendMessage(text: string) {
+  /**
+   * Send a chat turn. Updates the hook's internal state (used by any
+   * side-panel-style consumers) AND returns the assistant text, so the
+   * `@michitson/react-chat` adapter in ChatComponent.tsx can yield it
+   * into the package's stream. The package owns its own message state
+   * for now (semi-controlled API) — returning the text from here is
+   * the bridge until the package moves to fully-controlled `messages`
+   * / `onSend` props.
+   */
+  async function sendMessage(text: string): Promise<string> {
     if (!CHAT_URL) {
+      const reply =
+        'Backend not configured. Run `npx ampx sandbox` to deploy and refresh amplify_outputs.json.';
       setMessages((prev) => [
         ...prev,
         { text, sender: 'user' },
-        {
-          text: 'Backend not configured. Run `npx ampx sandbox` to deploy and refresh amplify_outputs.json.',
-          sender: 'bot',
-        },
+        { text: reply, sender: 'bot' },
       ]);
-      return;
+      return reply;
     }
 
     const next: Message[] = [...messages, { text, sender: 'user' }];
@@ -78,12 +86,12 @@ export default function useChatbot() {
       setCollectedFields(data.collectedFields ?? {});
       setIrrResult(data.irrResult);
       setMessages([...next, { text: data.response, sender: 'bot' }]);
+      return data.response;
     } catch (err) {
       console.error(err);
-      setMessages([
-        ...next,
-        { text: `Error: ${err instanceof Error ? err.message : 'unknown'}`, sender: 'bot' },
-      ]);
+      const reply = `Error: ${err instanceof Error ? err.message : 'unknown'}`;
+      setMessages([...next, { text: reply, sender: 'bot' }]);
+      return reply;
     } finally {
       setIsLoading(false);
     }

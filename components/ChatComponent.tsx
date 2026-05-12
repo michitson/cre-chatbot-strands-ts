@@ -18,9 +18,13 @@ export default function ChatComponent() {
 
     if (!lastUserMessage) return;
 
-    await sendMessage(lastUserMessage.content);
-
-    yield '' satisfies ChatStreamChunk;
+    // useChatbot.sendMessage already has the full assistant response
+    // by the time it resolves (the Lambda returns JSON, not a stream).
+    // Yield it as a single chunk so the package's bubble actually
+    // shows text instead of staying empty. When the package or the
+    // backend moves to true streaming, this becomes a loop.
+    const assistant = await sendMessage(lastUserMessage.content);
+    yield assistant satisfies ChatStreamChunk;
   };
 
   return (
