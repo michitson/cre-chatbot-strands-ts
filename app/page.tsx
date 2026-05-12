@@ -2,6 +2,7 @@
 
 import { Authenticator } from '@aws-amplify/ui-react';
 import ChatComponent from '@/components/ChatComponent';
+import ChatHeader from '@/components/ChatHeader';
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
                   Sign out
                 </button>
               </div>
+              <ChatHeader />
               <ChatComponent />
             </div>
           )}

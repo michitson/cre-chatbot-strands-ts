@@ -30,6 +30,18 @@ export default function ChatComponent() {
   return (
     <div className="h-[90vh] bg-white">
       <Chatbot
+        // `tight` narrows the bubbles to `max-w-[55%]` of the inner
+        // column — the closest the package exposes to the tutorial's
+        // narrow `max-w-xs` feel without a package change.
+        density="tight"
+        // `!` (Tailwind important) is intentional: the package's base
+        // classes include `dark:` variants that would otherwise win for
+        // visitors with prefers-color-scheme: dark. We want the same
+        // blue / mid-gray palette regardless of system theme.
+        classNames={{
+          userBubble: '!bg-blue-500 !text-white !rounded-lg',
+          assistantBubble: '!bg-gray-300 !text-gray-800 !rounded-lg',
+        }}
         initialMessages={messages.map((message, index) => ({
           id: String(index),
           role: message.sender === 'user' ? 'user' : 'assistant',
