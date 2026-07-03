@@ -8,6 +8,12 @@
     "aws-knowledge": {
       "type": "http",
       "url": "https://knowledge-mcp.global.api.aws"
+    },
+    "amazon-bedrock-agentcore": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["awslabs.amazon-bedrock-agentcore-mcp-server@latest"],
+      "env": { "FASTMCP_LOG_LEVEL": "ERROR" }
     }
   }
 }

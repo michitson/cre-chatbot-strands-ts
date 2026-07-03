@@ -23,10 +23,12 @@ Parking lot for ideas we've discussed but haven't built. Roughly ordered by
   before any agent work. Function URL itself stays `authType: NONE`
   so the handler can serve CORS preflights and craft proper 401/403
   bodies.
-- **Production frontend deploy.** `next build` works; need to wire Amplify
-  Hosting (or Vercel) so the Next.js app is reachable from somewhere other than
-  `localhost:3000`. Will also need `NEXT_PUBLIC_CHAT_URL` injection at build
-  time per environment.
+- **Production frontend deploy.** `next build` works; need to wire **Amplify
+  Hosting** (Vercel deferred — see ADR 0002) so the Next.js app is reachable
+  from somewhere other than `localhost:3000`. Will also need
+  `NEXT_PUBLIC_CHAT_URL` injection at build time per environment. ADR 0001's
+  Vercel-hybrid recommendation is deferred, not adopted; a Vercel showcase is
+  possible future work.
 
 ## Observability / audit (the post-hoc verification thread)
 
@@ -85,10 +87,67 @@ Things to build on top:
   chatbot: per-session microVM pricing favors high-isolation workloads,
   the managed Memory/Observability/Identity stack is over-spec'd for this
   use case, and the existing Lambda + Function URL is cheap and sufficient.
-  Do not propose AgentCore for this project again without a fresh signal
-  from the user. Deployment story stays: Lambda + Function URL on
+  ~~Do not propose AgentCore for this project again without a fresh signal
+  from the user.~~ Deployment story stays: Lambda + Function URL on
   Amplify Gen2 sandbox today; Amplify Hosting / Vercel for the production
   frontend later.
+
+- **AgentCore evaluation — RE-OPENED 2026-06-09.** Fresh signal from user
+  prompted a re-eval. Material changes since May:
+  - **TypeScript first-class.** `@aws/agentcore` CLI scaffolds Strands TS
+    projects directly: `agentcore add agent --build CodeZip --language
+    TypeScript --framework Strands`. No Docker / ECR required. 20-min path
+    from scratch.
+  - **CodeZip direct deployment.** Just zip the compiled JS + `node_modules/`
+    (or esbuild bundle) and deploy via CDK. 250MB zipped / 750MB unzipped
+    cap. ARM64-only.
+  - **Active-CPU pricing model.** Explicit in pricing docs: "I/O wait and
+    idle time is free, if no other background process is running." Billed
+    per-second on actual CPU consumption + peak memory, 128MB minimum.
+    This inverts the May cost conclusion for this Bedrock-bound workload —
+    a 7-turn session is mostly model-call wait, which is now free CPU time
+    vs Lambda's 512MB × wall-clock billing.
+  - **ADOT auto-instrumentation built-in.** Maps nearly 1:1 to the existing
+    `telemetry.ts` setup (Strands tracer → OTLP → ADOT layer → X-Ray today
+    becomes Strands tracer → OTLP → AgentCore CloudWatch Transaction Search).
+  - **Session persistence "for free."** MicroVMs hold sessions for up to
+    8 hours, which addresses the "DynamoDB session persistence" backlog
+    item without us building it. (Sticky session routing is part of the
+    AgentCore contract — `runtimeSessionId` on `InvokeAgentRuntime`.)
+
+  Open question (not yet decided): is the portfolio narrative + technical
+  win worth the cost of fragmenting the Amplify Gen2 unified-backend story?
+  Refactor plan if we proceed: extract Layer 3 (system prompt + 4 tools +
+  IRR/sensitivity math + hooks) into a target-agnostic `agent/` module
+  with a `createAgent(state, sessionId)` factory. Both Lambda and AgentCore
+  handlers become thin adapters around it. Extraction is worth doing on
+  its own merits regardless of where it deploys.
+
+- **AgentCore — UPDATED 2026-06-21 → the managed HARNESS (purity).**
+  See [ADR 0002](./docs/adr/0002-portfolio-kit-architecture.md) (rewritten in
+  place). The 2026-06-14 plan (monorepo kit, Runtime-only, no Gateway,
+  hand-authored MCP servers, 3 sibling stacks) is **superseded** — the AgentCore
+  **harness** went GA mid-June 2026 and inverted it. New shape: the harness runs
+  the agent loop as *configuration*; the only authored code is **two Lambdas
+  behind AgentCore Gateway** — calculator (IRR/sensitivity) and data (cap-rate +
+  sales via Athena, consume-only lakehouse). Compute / session / memory / auth /
+  observability are managed. Dropped: `agent-kit`/`mcp-kit` packages,
+  `mcp-calc`/`mcp-data` servers, the sibling stacks, the Lambda portability
+  adapter. Hand-built standalone artifacts are "museum pieces". Invocation
+  boundary unchanged ([ADR 0003](./docs/adr/0003-frontend-agent-invocation-boundary.md),
+  Shape A proxy). DynamoDB session persistence remains absorbed by AgentCore.
+
+## Content / portfolio writing
+
+- **AWS Builder Center blog series — PARKED 2026-06-21.** Narrate the journey
+  from v1 (Strands "the long way") → AgentCore **harness** purity, under the
+  banner of *progressing an idea to the harness* (AWS's new flagship agentic
+  offering). The before/after ADRs (esp. [0002](./docs/adr/0002-portfolio-kit-architecture.md))
+  are the spine; reads as senior judgement, not a tutorial. Best written *after*
+  `agentcore-deal-analyst` exists (need a real artifact to point at). Format
+  template: AWS's own multi-part "Build an agentic Amazon backtest operating
+  model with Bedrock AgentCore and Strands Agents, Part 1"
+  (builder.aws.com/content/3FRf6vwsJuEPtEegykR5fJdj5yo/...).
 
 ## UX polish (your "tweaks" list, when ready)
 

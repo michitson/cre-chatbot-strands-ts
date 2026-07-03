@@ -4,8 +4,12 @@ import { useState } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import amplifyOutputs from '@/amplify_outputs.json';
 
-const CHAT_URL = (amplifyOutputs as { custom?: { chatHandlerUrl?: string } })
-  .custom?.chatHandlerUrl;
+// Backend-agnostic: NEXT_PUBLIC_CHAT_URL wins (e.g. the sibling Python/LangGraph backend
+// at http://localhost:8000/chat); otherwise fall back to the Amplify Lambda. See
+// ../cre-chatbot-langgraph for the alternate backend that speaks this same contract.
+const CHAT_URL =
+  process.env.NEXT_PUBLIC_CHAT_URL ??
+  (amplifyOutputs as { custom?: { chatHandlerUrl?: string } }).custom?.chatHandlerUrl;
 
 export interface Message {
   text: string;
